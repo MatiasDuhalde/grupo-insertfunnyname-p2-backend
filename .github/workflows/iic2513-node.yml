@@ -1,0 +1,24 @@
+name: IIC2513 Node CI
+
+on: pull_request
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 12
+
+    strategy:
+      matrix:
+        node-version: [ 12.x ]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install dependencies
+      run: yarn install
+    - name: Run ESLint
+      run: yarn lint
