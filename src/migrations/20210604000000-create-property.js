@@ -9,36 +9,49 @@ module.exports = {
       },
       userId: {
         type: Sequelize.BIGINT,
+        onDelete: 'CASCADE',
+        references: { model: 'User', key: 'id'},
+        allowNull: false,
       },
       title: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       type: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       bathrooms: {
         type: Sequelize.INTEGER,
+        allowNull: true,
       },
       bedrooms: {
         type: Sequelize.INTEGER,
+        allowNull: true,
       },
       size: {
         type: Sequelize.INTEGER,
+        allowNull: true,
       },
       region: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       commune: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       street: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       streetNumber: {
         type: Sequelize.INTEGER,
+        allowNull: true,
       },
       description: {
         type: Sequelize.TEXT,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,

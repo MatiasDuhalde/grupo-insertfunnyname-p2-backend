@@ -5,16 +5,23 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
       },
       userId: {
         type: Sequelize.BIGINT,
+        allowNull: false,
+        onDelete: 'CASCADE',
+        references: { model: 'User', key: 'id'},
       },
       reportedUserId: {
         type: Sequelize.BIGINT,
+        allowNull: false,
+        onDelete: 'CASCADE',
+        references: { model: 'User', key: 'id'},
       },
       reason: {
         type: Sequelize.TEXT,
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
