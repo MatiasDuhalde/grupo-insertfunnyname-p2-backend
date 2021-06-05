@@ -8,16 +8,16 @@ module.exports = {
         type: Sequelize.BIGINT,
       },
       userId: {
-        type: DataTypes.BIGINT,
+        type: Sequelize.BIGINT,
         allowNull: false,
         onDelete: 'CASCADE',
-        references: { model: 'User', key: 'id'},
+        references: { model: 'User', key: 'id' },
       },
       propertyId: {
-        type: DataTypes.BIGINT,
+        type: Sequelize.BIGINT,
         allowNull: false,
         onDelete: 'CASCADE',
-        references: { model: 'Property', key: 'id'},
+        references: { model: 'Property', key: 'id' },
       },
       body: {
         type: Sequelize.TEXT,

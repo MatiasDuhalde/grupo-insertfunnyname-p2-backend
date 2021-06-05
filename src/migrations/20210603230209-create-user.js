@@ -10,7 +10,7 @@ module.exports = {
       email: {
         allowNull: false,
         type: Sequelize.STRING,
-        unique: true
+        unique: true,
       },
       firstName: {
         allowNull: false,
@@ -23,10 +23,11 @@ module.exports = {
       avatarLink: {
         allowNull: false,
         type: Sequelize.STRING,
-        defaultValue: 'https://png.pngtree.com/png-vector/20191026/ourlarge/pngtree-avatar-vector-icon-white-background-png-image_1870181.jpg'
+        defaultValue:
+          'https://png.pngtree.com/png-vector/20191026/ourlarge/pngtree-avatar-vector-icon-white-background-png-image_1870181.jpg',
       },
-      hashedPassword: { 
-        allowNull: false, 
+      hashedPassword: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       createdAt: {

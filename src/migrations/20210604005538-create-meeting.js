@@ -11,19 +11,19 @@ module.exports = {
         type: Sequelize.BIGINT,
         onDelete: 'CASCADE',
         allowNull: false,
-        references: { model: 'User', key: 'id'},
+        references: { model: 'User', key: 'id' },
       },
       sellerId: {
         type: Sequelize.BIGINT,
         onDelete: 'CASCADE',
         allowNull: false,
-        references: { model: 'User', key: 'id'},
+        references: { model: 'User', key: 'id' },
       },
       propertyId: {
         type: Sequelize.BIGINT,
         onDelete: 'CASCADE',
         allowNull: false,
-        references: { model: 'Property', key: 'id'},
+        references: { model: 'Property', key: 'id' },
       },
       type: {
         type: Sequelize.STRING,

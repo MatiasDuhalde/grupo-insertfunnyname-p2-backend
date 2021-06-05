@@ -11,14 +11,14 @@ module.exports = {
         type: Sequelize.BIGINT,
         allowNull: false,
         onDelete: 'CASCADE',
-        references: { model: 'User', key: 'id'},
+        references: { model: 'User', key: 'id' },
         unique: 'compositeIndex',
       },
       commentId: {
         type: Sequelize.BIGINT,
         allowNull: false,
         onDelete: 'CASCADE',
-        references: { model: 'Comment', key: 'id'},
+        references: { model: 'Comment', key: 'id' },
         unique: 'compositeIndex',
       },
       reason: {
