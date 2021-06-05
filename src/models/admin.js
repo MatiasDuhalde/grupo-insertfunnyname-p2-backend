@@ -18,23 +18,11 @@ module.exports = (sequelize, DataTypes) => {
       email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: {
-          args: true,
-          msg: "There's already another account using that email",
-        },
-        validate: {
-          isEmail: {
-            args: true,
-            msg: 'Email must have a valid format',
-          },
-        },
+        unique: true,
       },
       hashedPassword: {
         type: DataTypes.STRING,
         allowNull: false,
-        validate: {
-          notEmpty: true,
-        },
       },
     },
     {
