@@ -11,13 +11,13 @@ module.exports = {
         type: Sequelize.BIGINT,
         allowNull: false,
         onDelete: 'CASCADE',
-        references: { model: 'User', key: 'id' },
+        references: { model: 'Users', key: 'id' },
       },
       propertyId: {
         type: Sequelize.BIGINT,
         allowNull: false,
         onDelete: 'CASCADE',
-        references: { model: 'Property', key: 'id' },
+        references: { model: 'Properties', key: 'id' },
       },
       body: {
         type: Sequelize.TEXT,
