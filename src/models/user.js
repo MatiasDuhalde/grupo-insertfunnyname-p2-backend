@@ -18,13 +18,17 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.Property, {
         foreignKey: 'userId',
       });
-      this.hasMany(models.Reports, {
-        as: 'madeReports',
+      this.hasMany(models.ReportUser, {
+        as: 'madeUserReports',
         foreignKey: 'userId',
       });
-      this.hasMany(models.Reports, {
-        as: 'receivedReports',
+      this.hasMany(models.ReportUser, {
+        as: 'receivedUserReports',
         foreignKey: 'reportedUserId',
+      });
+      this.hasMany(models.ReportComment, {
+        as: 'madeCommentReports',
+        foreignKey: 'userId',
       });
       this.hasMany(models.Meeting, {
         as: 'buyerMeetings',
