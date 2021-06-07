@@ -11,7 +11,7 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
      */
-    await queryInterface.bulkInsert('Users', generateRandomUsers(100), {});
+    await queryInterface.bulkInsert('Users', generateRandomUsers(150), {});
   },
 
   down: async (queryInterface) => {
