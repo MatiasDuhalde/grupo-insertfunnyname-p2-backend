@@ -6,6 +6,8 @@ const users = require('./routes/users');
 const properties = require('./routes/properties');
 const meetings = require('./routes/meetings');
 const comments = require('./routes/comments');
+const reports = require('./routes/reports');
+const admin = require('./routes/admin');
 
 const router = new KoaRouter();
 
@@ -31,5 +33,7 @@ router.use(users.routes());
 router.use(properties.routes());
 router.use(meetings.routes());
 router.use(comments.routes());
+router.use(reports.routes());
+router.use(admin.routes());
 
 module.exports = router;
