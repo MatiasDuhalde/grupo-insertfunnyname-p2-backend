@@ -7,7 +7,7 @@ const properties = require('./routes/properties');
 const meetings = require('./routes/meetings');
 const comments = require('./routes/comments');
 const reports = require('./routes/reports');
-const admin = require('./routes/admin');
+const admin = require('./routes/admins');
 
 const router = new KoaRouter();
 
