@@ -104,7 +104,7 @@ module.exports = (sequelize, DataTypes) => {
           },
           max: {
             args: 999999,
-            msg: 'Size cannot be larger than 999999',
+            msg: 'Size cannot be larger than 999,999',
           },
         },
       },
@@ -173,6 +173,28 @@ module.exports = (sequelize, DataTypes) => {
             args: [0, 1000],
             msg: 'Description cannot be longer than 1000 characters',
           },
+        },
+      },
+      price: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+          isNumeric: true,
+          min: {
+            args: 1,
+            msg: 'Price cannot be less than 1',
+          },
+          max: {
+            args: 999999999,
+            msg: 'Price cannot be greater than 9,999,999,999',
+          },
+        },
+      },
+      listingType: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          isIn: [['sale', 'rent']],
         },
       },
     },

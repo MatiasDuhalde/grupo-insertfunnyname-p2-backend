@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.Property, {
         foreignKey: 'propertyId',
       });
+      this.hasMany(models.ReportComment, {
+        as: 'receivedCommentReports',
+        foreignKey: 'commentId',
+      });
     }
   }
   Comment.init(

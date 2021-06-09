@@ -23,8 +23,6 @@ module.exports = {
       avatarLink: {
         allowNull: false,
         type: Sequelize.STRING,
-        defaultValue:
-          'https://png.pngtree.com/png-vector/20191026/ourlarge/pngtree-avatar-vector-icon-white-background-png-image_1870181.jpg',
       },
       hashedPassword: {
         allowNull: false,
