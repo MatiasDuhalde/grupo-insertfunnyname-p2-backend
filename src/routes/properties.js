@@ -9,7 +9,7 @@ router.param('propertyId', validateIntParam);
 
 router.get('property.list', '/properties', async (ctx) => {
   // TODO: only return meaningful properties
-  const properties = ctx.orm.Property.findAll();
+  const properties = await ctx.orm.Property.findAll();
   ctx.body = {
     properties,
   };
@@ -18,7 +18,7 @@ router.get('property.list', '/properties', async (ctx) => {
 router.get('property.get', '/properties/:propertyId', async (ctx) => {
   const { propertyId } = ctx.params;
   try {
-    const property = ctx.orm.Propety.findByPk(propertyId);
+    const property = await ctx.orm.Property.findByPk(propertyId);
     ctx.body = {
       property,
     };
