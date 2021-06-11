@@ -1,50 +1,47 @@
 const KoaRouter = require('koa-router');
-const ApiError = require('./utils/apiError');
 
-const { validateIntParam } = require('./utils/utils');
+const { validateIntParam, jwtAuth } = require('./utils/utils');
 
 const router = new KoaRouter();
 
-const DEFAULT_AVATAR = `https://png.pngtree.com/png-vector/20191026/ourlarge/\
-pngtree-avatar-vector-icon-white-background-png-image_1870181.jpg${''}`;
+require('dotenv').config();
 
 router.param('userId', validateIntParam);
 
-router.post('user.create', '/users', async (ctx) => {
-  const {
-    firstName, //
-    lastName,
-    email,
-    password,
-  } = ctx.request.body;
-  try {
-    const user = await ctx.orm.User.create({
-      firstName,
-      lastName,
-      email,
-      hashedPassword: password,
-      avatarLink: DEFAULT_AVATAR,
-    });
-    // TODO: Return JWT somewhere??
-    ctx.body = {
-      userId: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-    };
-  } catch (error) {
-    const errors = {};
-    if (error instanceof ctx.orm.Sequelize.ValidationError) {
-      error.errors.forEach((errorItem) => {
-        errors[errorItem.path] = errorItem.message;
-      });
-    } else {
-      errors.password = error.message;
-    }
-    throw new ApiError(400, 'Could not create user', {
-      errors,
-    });
-  }
+router.get('user.me', '/me', jwtAuth, async (ctx) => {
+  const { jwtDecoded: { sub } } = ctx.state;
+  const user = await ctx.orm.User.findByPk(sub);
+  ctx.body = { user };
 });
 
+router.patch('user.byId', '/:userId', jwtAuth, async (ctx) => {
+  try {
+    const { userId } = ctx.params;
+    const fetchedUser = await ctx.orm.User.findByPk(userId);
+    const { jwtDecoded: { sub } } = ctx.state;
+    const currentUser = await ctx.orm.User.findByPk(sub);
+    if (currentUser.id === fetchedUser.id) {
+      const { firstName, lastName, email, avatarLink } = ctx.request.body;
+      currentUser.firstName = firstName;
+      currentUser.lastName = lastName;
+      currentUser.email = email;
+      currentUser.avatarLink = avatarLink; // Add password help :(
+      await ctx.state.currentUser.save();
+      return ctx.redirect(ctx.router.url('userId', { userId: ctx.state.currentUser.id }));
+    }
+    ctx.status = 401;
+    ctx.throw(401, 'Unauthorized');
+  } catch (error) {
+    const messages = {};
+    if (error instanceof ctx.orm.Sequelize.ValidationError) {
+      error.errors.forEach((errorItem) => {
+        messages[errorItem.path] = errorItem.message;
+      });
+    } else {
+      messages.post = 'Could not modify this user';
+    }
+    ctx.flashMessages.danger = messages;
+    return ctx.redirect(ctx.router.url(':userId', { userId: ctx.state.currentUser.id }));
+  }
+});
 module.exports = router;
