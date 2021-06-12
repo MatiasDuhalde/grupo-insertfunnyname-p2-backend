@@ -29,7 +29,6 @@ router.patch('user.edit', '/users/:userId', authJWT, async (ctx) => {
       user[key] = ctx.request.body[key];
     });
     await user.save();
-    console.log(user);
     ctx.status = 204;
   } catch (error) {
     const errors = {};
