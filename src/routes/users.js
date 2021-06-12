@@ -1,6 +1,6 @@
 const KoaRouter = require('koa-router');
 
-const { validateIntParam, jwtAuth } = require('./utils/utils');
+const { validateIntParam, authJWT } = require('./utils/utils');
 
 const router = new KoaRouter();
 
@@ -8,17 +8,21 @@ require('dotenv').config();
 
 router.param('userId', validateIntParam);
 
-router.get('user.me', '/me', jwtAuth, async (ctx) => {
-  const { jwtDecoded: { sub } } = ctx.state;
+router.get('user.me', '/me', authJWT, async (ctx) => {
+  const {
+    jwtDecoded: { sub },
+  } = ctx.state;
   const user = await ctx.orm.User.findByPk(sub);
   ctx.body = { user };
 });
 
-router.patch('user.byId', '/:userId', jwtAuth, async (ctx) => {
+router.patch('user.byId', '/:userId', authJWT, async (ctx) => {
   try {
     const { userId } = ctx.params;
     const fetchedUser = await ctx.orm.User.findByPk(userId);
-    const { jwtDecoded: { sub } } = ctx.state;
+    const {
+      jwtDecoded: { sub },
+    } = ctx.state;
     const currentUser = await ctx.orm.User.findByPk(sub);
     if (currentUser.id === fetchedUser.id) {
       const { firstName, lastName, email, avatarLink } = ctx.request.body;
