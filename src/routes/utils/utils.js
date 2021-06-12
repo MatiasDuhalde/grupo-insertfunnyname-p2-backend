@@ -1,8 +1,6 @@
 const koaJwt = require('koa-jwt');
 const ApiError = require('./apiError');
 
-require('dotenv').config();
-
 const validateIntParam = async (param, ctx, next) => {
   const parsedParam = +param;
   if (parsedParam < 1 || !Number.isInteger(parsedParam)) {
@@ -23,11 +21,30 @@ const excludeLogin = async (ctx, next) => {
   return next();
 };
 
-const jwtAuth = koaJwt({ secret: process.env.JWT_SECRET, key: 'jwtDecoded' });
+const authJWT = koaJwt({ secret: process.env.JWT_SECRET, key: 'jwtDecoded' });
+
+const requiredParams = (params) => (ctx, next) => {
+  const errors = {};
+  Object.keys(params).forEach((param) => {
+    if (ctx.request.body[param] === undefined) {
+      errors[param] = `${param} is required`;
+      return;
+    }
+    const paramType = typeof ctx.request.body[param];
+    if (paramType !== params[param]) {
+      errors[param] = `${param} must have type ${params[param]} (received ${paramType})`;
+    }
+  });
+  if (Object.keys(errors).length !== 0) {
+    throw new ApiError(422, 'Wrong parameters', { errors });
+  }
+  return next();
+};
 
 module.exports = {
   validateIntParam,
   requireLogin,
   excludeLogin,
-  jwtAuth,
+  authJWT,
+  requiredParams,
 };
