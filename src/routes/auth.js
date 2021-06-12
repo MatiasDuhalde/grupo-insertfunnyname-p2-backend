@@ -49,9 +49,7 @@ router.post(
       } else {
         errors.password = error.message;
       }
-      throw new ApiError(400, 'Could not create user', {
-        errors,
-      });
+      throw new ApiError(400, 'Could not create user', { errors });
     }
   },
 );
