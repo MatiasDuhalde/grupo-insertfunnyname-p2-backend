@@ -13,14 +13,22 @@ router.param('propertyId', validateIntParam);
 
 router.get('property.meeting.list', '/properties/:propertyId/meetings', async (ctx) => {
   const { propertyId } = ctx.params;
+  let property;
   try {
-    const property = ctx.orm.Propety.findByPk(propertyId);
+    property = ctx.orm.Propety.findByPk(propertyId);
+    if (!property) {
+      throw new Error();
+    }
+  } catch (error) {
+    throw new ApiError(404, `Property listing '${propertyId}' not found`);
+  }
+  try {
     const meetings = property.getMeetings();
     ctx.body = {
       meetings,
     };
   } catch (error) {
-    throw new ApiError(404, `Property '${propertyId}' not found`);
+    throw new ApiError(404, `Could not retrieve property listing '${propertyId}' meetings`);
   }
 });
 
