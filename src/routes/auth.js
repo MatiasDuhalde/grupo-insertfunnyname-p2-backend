@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const KoaRouter = require('koa-router');
 
 const ApiError = require('./utils/apiError');
-const { validateIntParam, authJWT, requiredParams } = require('./utils/utils');
+const { validateIntParam, requiredParams } = require('./utils/utils');
 
 const router = new KoaRouter();
 
