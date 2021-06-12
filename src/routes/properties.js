@@ -1,7 +1,7 @@
 const KoaRouter = require('koa-router');
 const ApiError = require('./utils/apiError');
 
-const { validateIntParam } = require('./utils/utils');
+const { validateIntParam, authJWT, requiredParams } = require('./utils/utils');
 
 const router = new KoaRouter();
 
@@ -14,6 +14,71 @@ router.get('property.list', '/properties', async (ctx) => {
     properties,
   };
 });
+
+router.post(
+  'property.create',
+  '/properties',
+  authJWT,
+  requiredParams({
+    title: 'string',
+    type: 'string',
+    region: 'string',
+    commune: 'string',
+    street: 'string',
+    price: 'number',
+    listingType: 'string',
+    // description, streetNumber, size, bedrooms, bathrooms may be null
+  }),
+  async (ctx) => {
+    const {
+      title,
+      type,
+      bathrooms,
+      bedrooms,
+      size,
+      region,
+      commune,
+      street,
+      streetNumber,
+      description,
+      price,
+      listingType,
+    } = ctx.request.body;
+    const {
+      jwtDecoded: { sub: userId },
+    } = ctx.state;
+    try {
+      const property = await ctx.orm.Property.create({
+        userId,
+        title: title.trim(),
+        type,
+        bathrooms,
+        bedrooms,
+        size,
+        region: region.trim(),
+        commune: commune.trim(),
+        street: street.trim(),
+        streetNumber,
+        description: description.trim(),
+        price,
+        listingType,
+      });
+      ctx.status = 201;
+      ctx.body = {
+        title: property.title,
+      };
+    } catch (error) {
+      const errors = {};
+      if (error instanceof ctx.orm.Sequelize.ValidationError) {
+        error.errors.forEach((errorItem) => {
+          errors[errorItem.path] = errorItem.message;
+        });
+        throw new ApiError(400, 'Could not create property listing', { errors });
+      }
+      throw error;
+    }
+  },
+);
 
 router.get('property.get', '/properties/:propertyId', async (ctx) => {
   const { propertyId } = ctx.params;
