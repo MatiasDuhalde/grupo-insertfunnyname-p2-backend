@@ -59,13 +59,13 @@ router.post(
         commune: commune.trim(),
         street: street.trim(),
         streetNumber,
-        description: description.trim(),
+        description: description ? description.trim() : description,
         price,
         listingType,
       });
       ctx.status = 201;
       ctx.body = {
-        title: property.title,
+        id: property.id,
       };
     } catch (error) {
       const errors = {};
@@ -95,37 +95,39 @@ router.get('property.get', '/properties/:propertyId', async (ctx) => {
   }
 });
 
-// router.patch('property.edit', '/users/:userId', authJWT, async (ctx) => {
-//   const { propertyId } = ctx.params;
-//   const {
-//     jwtDecoded: { sub: userId },
-//   } = ctx.state;
-//   try {
-//     const property = await ctx.orm.Property.findByPk(propertyId);
-//     console.log(typeof property.userId, typeof userId);
-//     if (property.userId !== userId) {
-//       ctx.throw(401, 'Unauthorized');
-//     }
-//   } catch (error) {
-//     throw new ApiError(404, `Property '${propertyId}' not found`);
-//   }
-//   try {
-//     const user = await ctx.orm.User.findByPk(sub);
-//     Object.keys(ctx.request.body).forEach((key) => {
-//       user[key] = ctx.request.body[key];
-//     });
-//     await user.save();
-//     ctx.status = 204;
-//   } catch (error) {
-//     const errors = {};
-//     if (error instanceof ctx.orm.Sequelize.ValidationError) {
-//       error.errors.forEach((errorItem) => {
-//         errors[errorItem.path] = errorItem.message;
-//       });
-//       throw new ApiError(400, 'Could not modify user', { errors });
-//     }
-//     throw error;
-//   }
-// });
+router.patch('property.edit', '/properties/:propertyId', authJWT, async (ctx) => {
+  const { propertyId } = ctx.params;
+  const {
+    jwtDecoded: { sub: userId },
+  } = ctx.state;
+  let property;
+  try {
+    property = await ctx.orm.Property.findByPk(propertyId);
+    if (!property) {
+      throw new Error();
+    }
+  } catch (error) {
+    throw new ApiError(404, `Property '${propertyId}' not found`);
+  }
+  if (userId !== property.userId) {
+    ctx.throw(401, 'Unauthorized');
+  }
+  try {
+    Object.keys(ctx.request.body).forEach((key) => {
+      property[key] = ctx.request.body[key];
+    });
+    await property.save();
+    ctx.status = 204;
+  } catch (error) {
+    const errors = {};
+    if (error instanceof ctx.orm.Sequelize.ValidationError) {
+      error.errors.forEach((errorItem) => {
+        errors[errorItem.path] = errorItem.message;
+      });
+      throw new ApiError(400, 'Could not modify property', { errors });
+    }
+    throw error;
+  }
+});
 
 module.exports = router;
