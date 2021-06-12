@@ -1,5 +1,7 @@
 const { Model } = require('sequelize');
 
+const MEETING_TYPES = ['remote', 'face-to-face'];
+
 module.exports = (sequelize, DataTypes) => {
   class Meeting extends Model {
     /**
@@ -48,7 +50,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          isIn: [['remote', 'face-to-face']],
+          isIn: {
+            args: [MEETING_TYPES],
+            msg: `Type must be one of the following: ${MEETING_TYPES.join(', ')}`,
+          },
         },
       },
       date: {
