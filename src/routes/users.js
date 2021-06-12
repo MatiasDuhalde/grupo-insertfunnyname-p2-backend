@@ -11,7 +11,7 @@ router.get('user.me', '/users/me', authJWT, async (ctx) => {
   const {
     jwtDecoded: { sub },
   } = ctx.state;
-  const user = await ctx.orm.User.findByPk(sub);
+  const user = await ctx.orm.User.findByPk(sub, { attributes: { exclude: ['hashedPassword'] } });
   ctx.body = { user };
 });
 
@@ -25,6 +25,8 @@ router.patch('user.edit', '/users/:userId', authJWT, async (ctx) => {
   }
   try {
     const user = await ctx.orm.User.findByPk(sub);
+    ctx.request.body.hashedPassword = ctx.request.body.password;
+    delete ctx.request.body.password;
     Object.keys(ctx.request.body).forEach((key) => {
       user[key] = ctx.request.body[key];
     });
