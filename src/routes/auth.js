@@ -36,6 +36,7 @@ router.post(
         hashedPassword: password,
         avatarLink: DEFAULT_AVATAR,
       });
+      ctx.status = 201;
       ctx.body = {
         email: user.email,
       };
