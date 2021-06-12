@@ -1,14 +1,13 @@
 const KoaRouter = require('koa-router');
 
+const { ApiError } = require('./utils/apiError');
 const { validateIntParam, authJWT } = require('./utils/utils');
 
 const router = new KoaRouter();
 
-require('dotenv').config();
-
 router.param('userId', validateIntParam);
 
-router.get('user.me', '/me', authJWT, async (ctx) => {
+router.get('user.me', '/users/me', authJWT, async (ctx) => {
   const {
     jwtDecoded: { sub },
   } = ctx.state;
@@ -16,36 +15,32 @@ router.get('user.me', '/me', authJWT, async (ctx) => {
   ctx.body = { user };
 });
 
-router.patch('user.byId', '/:userId', authJWT, async (ctx) => {
-  try {
-    const { userId } = ctx.params;
-    const fetchedUser = await ctx.orm.User.findByPk(userId);
-    const {
-      jwtDecoded: { sub },
-    } = ctx.state;
-    const currentUser = await ctx.orm.User.findByPk(sub);
-    if (currentUser.id === fetchedUser.id) {
-      const { firstName, lastName, email, avatarLink } = ctx.request.body;
-      currentUser.firstName = firstName;
-      currentUser.lastName = lastName;
-      currentUser.email = email;
-      currentUser.avatarLink = avatarLink; // Add password help :(
-      await ctx.state.currentUser.save();
-      return ctx.redirect(ctx.router.url('userId', { userId: ctx.state.currentUser.id }));
-    }
-    ctx.status = 401;
+router.patch('user.edit', '/users/:userId', authJWT, async (ctx) => {
+  const { userId } = ctx.params;
+  const {
+    jwtDecoded: { sub },
+  } = ctx.state;
+  if (sub !== +userId) {
     ctx.throw(401, 'Unauthorized');
+  }
+  try {
+    const user = await ctx.orm.User.findByPk(sub);
+    Object.keys(ctx.request.body).forEach((key) => {
+      user[key] = ctx.request.body[key];
+    });
+    await user.save();
+    console.log(user);
+    ctx.status = 204;
   } catch (error) {
-    const messages = {};
+    const errors = {};
     if (error instanceof ctx.orm.Sequelize.ValidationError) {
       error.errors.forEach((errorItem) => {
-        messages[errorItem.path] = errorItem.message;
+        errors[errorItem.path] = errorItem.message;
       });
-    } else {
-      messages.post = 'Could not modify this user';
+      throw new ApiError(400, 'Could not modify user', { errors });
     }
-    ctx.flashMessages.danger = messages;
-    return ctx.redirect(ctx.router.url(':userId', { userId: ctx.state.currentUser.id }));
+    throw error;
   }
 });
+
 module.exports = router;
