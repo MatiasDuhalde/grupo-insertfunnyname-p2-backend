@@ -41,10 +41,19 @@ const requiredParams = (params) => (ctx, next) => {
   return next();
 };
 
+const getUserIdFromToken = (ctx, next) => {
+  const {
+    jwtDecoded: { sub },
+  } = ctx.state;
+  ctx.state.userId = sub;
+  return next();
+};
+
 module.exports = {
   validateIntParam,
   requireLogin,
   excludeLogin,
   authJWT,
   requiredParams,
+  getUserIdFromToken,
 };
