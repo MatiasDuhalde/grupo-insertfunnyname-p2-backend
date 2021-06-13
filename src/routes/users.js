@@ -1,30 +1,26 @@
 const KoaRouter = require('koa-router');
 
 const ApiError = require('./utils/apiError');
-const { validateIntParam, authJWT } = require('./utils/utils');
+const { validateIntParam, authJWT, getUserIdFromToken } = require('./utils/utils');
 
 const router = new KoaRouter();
 
 router.param('userId', validateIntParam);
 
-router.get('user.me', '/users/me', authJWT, async (ctx) => {
-  const {
-    jwtDecoded: { sub },
-  } = ctx.state;
-  const user = await ctx.orm.User.findByPk(sub, { attributes: { exclude: ['hashedPassword'] } });
+router.get('user.me', '/users/me', authJWT, getUserIdFromToken, async (ctx) => {
+  const user = await ctx.orm.User.findByPk(ctx.state.userId, {
+    attributes: { exclude: ['hashedPassword'] },
+  });
   ctx.body = { user };
 });
 
-router.patch('user.edit', '/users/:userId', authJWT, async (ctx) => {
+router.patch('user.edit', '/users/:userId', authJWT, getUserIdFromToken, async (ctx) => {
   const { userId } = ctx.params;
-  const {
-    jwtDecoded: { sub },
-  } = ctx.state;
-  if (sub !== +userId) {
+  if (ctx.state.userId !== userId) {
     ctx.throw(401, 'Unauthorized');
   }
   try {
-    const user = await ctx.orm.User.findByPk(sub);
+    const user = await ctx.orm.User.findByPk(ctx.state.userId);
     ctx.request.body.hashedPassword = ctx.request.body.password;
     delete ctx.request.body.password;
     Object.keys(ctx.request.body).forEach((key) => {
