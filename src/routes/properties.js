@@ -1,7 +1,13 @@
 const KoaRouter = require('koa-router');
 const ApiError = require('./utils/apiError');
+const { loadSingleProperty } = require('./utils/queries');
 
-const { validateIntParam, authJWT, requiredParams } = require('./utils/utils');
+const {
+  validateIntParam, //
+  authJWT,
+  requiredParams,
+  getUserIdFromToken,
+} = require('./utils/utils');
 
 const router = new KoaRouter();
 
@@ -19,6 +25,7 @@ router.post(
   'property.create',
   '/properties',
   authJWT,
+  getUserIdFromToken,
   requiredParams({
     title: 'string',
     type: 'string',
@@ -44,12 +51,9 @@ router.post(
       price,
       listingType,
     } = ctx.request.body;
-    const {
-      jwtDecoded: { sub: userId },
-    } = ctx.state;
     try {
       const property = await ctx.orm.Property.create({
-        userId,
+        userId: ctx.state.userId,
         title: title.trim(),
         type,
         bathrooms,
@@ -80,54 +84,58 @@ router.post(
   },
 );
 
-router.get('property.get', '/properties/:propertyId', async (ctx) => {
-  const { propertyId } = ctx.params;
-  try {
-    const property = await ctx.orm.Property.findByPk(propertyId);
-    if (!property) {
-      throw new Error();
-    }
-    ctx.body = {
-      property,
-    };
-  } catch (error) {
-    throw new ApiError(404, `Property listing '${propertyId}' not found`);
-  }
+router.get('property.get', '/properties/:propertyId', loadSingleProperty, async (ctx) => {
+  ctx.body = {
+    property: ctx.state.property,
+  };
 });
 
-router.patch('property.edit', '/properties/:propertyId', authJWT, async (ctx) => {
-  const { propertyId } = ctx.params;
-  const {
-    jwtDecoded: { sub: userId },
-  } = ctx.state;
-  let property;
-  try {
-    property = await ctx.orm.Property.findByPk(propertyId);
-    if (!property) {
-      throw new Error();
+router.patch(
+  'property.edit',
+  '/properties/:propertyId',
+  authJWT,
+  getUserIdFromToken,
+  loadSingleProperty,
+  async (ctx) => {
+    if (ctx.state.userId !== ctx.state.property.userId) {
+      ctx.throw(401, 'Unauthorized');
     }
-  } catch (error) {
-    throw new ApiError(404, `Property '${propertyId}' not found`);
-  }
-  if (userId !== property.userId) {
-    ctx.throw(401, 'Unauthorized');
-  }
-  try {
-    Object.keys(ctx.request.body).forEach((key) => {
-      property[key] = ctx.request.body[key];
-    });
-    await property.save();
-    ctx.status = 204;
-  } catch (error) {
-    const errors = {};
-    if (error instanceof ctx.orm.Sequelize.ValidationError) {
-      error.errors.forEach((errorItem) => {
-        errors[errorItem.path] = errorItem.message;
+    try {
+      Object.keys(ctx.request.body).forEach((key) => {
+        ctx.state.property[key] = ctx.request.body[key];
       });
-      throw new ApiError(400, 'Could not modify property', { errors });
+      await ctx.state.property.save();
+      ctx.status = 204;
+    } catch (error) {
+      const errors = {};
+      if (error instanceof ctx.orm.Sequelize.ValidationError) {
+        error.errors.forEach((errorItem) => {
+          errors[errorItem.path] = errorItem.message;
+        });
+        throw new ApiError(400, 'Could not modify property listing', { errors });
+      }
+      throw error;
     }
-    throw error;
-  }
-});
+  },
+);
+
+router.delete(
+  'property.delete',
+  '/properties/:propertyId',
+  authJWT,
+  getUserIdFromToken,
+  loadSingleProperty,
+  async (ctx) => {
+    if (ctx.state.userId !== ctx.state.property.userId) {
+      ctx.throw(401, 'Unauthorized');
+    }
+    try {
+      ctx.state.property.destroy();
+      ctx.status = 204;
+    } catch (error) {
+      throw new ApiError(400, 'Could not delete property listing');
+    }
+  },
+);
 
 module.exports = router;
