@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const KoaRouter = require('koa-router');
 
+require('dotenv').config();
+
 const ApiError = require('./utils/apiError');
 const { validateIntParam, requiredParams } = require('./utils/utils');
 

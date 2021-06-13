@@ -1,6 +1,8 @@
 const koaJwt = require('koa-jwt');
 const ApiError = require('./apiError');
 
+require('dotenv').config();
+
 const validateIntParam = async (param, ctx, next) => {
   const parsedParam = +param;
   if (parsedParam < 1 || !Number.isInteger(parsedParam)) {
@@ -21,7 +23,9 @@ const excludeLogin = async (ctx, next) => {
   return next();
 };
 
-const authJWT = koaJwt({ secret: process.env.JWT_SECRET, key: 'jwtDecoded' });
+const debug = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+
+const authJWT = koaJwt({ secret: process.env.JWT_SECRET, key: 'jwtDecoded', debug });
 
 const requiredParams = (params) => (ctx, next) => {
   const errors = {};
