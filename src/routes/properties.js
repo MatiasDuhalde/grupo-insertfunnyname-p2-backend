@@ -1,4 +1,5 @@
 const KoaRouter = require('koa-router');
+
 const ApiError = require('./utils/apiError');
 const { loadSingleProperty } = require('./utils/queries');
 
