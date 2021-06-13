@@ -14,14 +14,22 @@ router.param('commentId', validateIntParam);
 
 router.get('property.comment.list', '/properties/:propertyId/comments', async (ctx) => {
   const { propertyId } = ctx.params;
+  let property;
   try {
-    const property = ctx.orm.Propety.findByPk(propertyId);
+    property = ctx.orm.Propety.findByPk(propertyId);
+    if (!property) {
+      throw new Error();
+    }
+  } catch (error) {
+    throw new ApiError(404, `Property listing '${propertyId}' not found`);
+  }
+  try {
     const comments = property.getComments();
     ctx.body = {
       comments,
     };
   } catch (error) {
-    throw new ApiError(404, `Property '${propertyId}' not found`);
+    throw new ApiError(404, `Could not retrieve property listing '${propertyId}' comments`);
   }
 });
 

@@ -1,5 +1,21 @@
 const { Model } = require('sequelize');
 
+const PROPERTY_TYPES = [
+  'house',
+  'apartment',
+  'tent',
+  'cabin',
+  'lot',
+  'farm',
+  'room',
+  'mansion',
+  'business',
+  'office',
+  'other',
+];
+
+const LISTING_TYPES = ['sale', 'rent'];
+
 module.exports = (sequelize, DataTypes) => {
   class Property extends Model {
     /**
@@ -46,21 +62,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          isIn: [
-            [
-              'house',
-              'apartment',
-              'tent',
-              'cabin',
-              'lot',
-              'farm',
-              'room',
-              'mansion',
-              'business',
-              'office',
-              'other',
-            ],
-          ],
+          isIn: {
+            args: [PROPERTY_TYPES],
+            msg: `Type must be one of the following: ${PROPERTY_TYPES.join(', ')}`,
+          },
         },
       },
       bathrooms: {
@@ -69,11 +74,11 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           isNumeric: true,
           min: {
-            args: 0,
+            args: [0],
             msg: 'Bathroom quantity cannot be negative',
           },
           max: {
-            args: 999,
+            args: [999],
             msg: 'Bathroom quantity cannot be larger than 999',
           },
         },
@@ -84,11 +89,11 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           isNumeric: true,
           min: {
-            args: 0,
+            args: [0],
             msg: 'Bedroom quantity cannot be negative',
           },
           max: {
-            args: 999,
+            args: [999],
             msg: 'Bedroom quantity cannot be larger than 999',
           },
         },
@@ -99,11 +104,11 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           isNumeric: true,
           min: {
-            args: 0,
+            args: [0],
             msg: 'Size cannot be negative',
           },
           max: {
-            args: 999999,
+            args: [999999],
             msg: 'Size cannot be larger than 999,999',
           },
         },
@@ -156,11 +161,11 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           isNumeric: true,
           min: {
-            args: 0,
+            args: [0],
             msg: 'Street number cannot be negative',
           },
           max: {
-            args: 999999,
+            args: [999999],
             msg: 'Street number cannot be larger than 999999',
           },
         },
@@ -181,11 +186,11 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           isNumeric: true,
           min: {
-            args: 1,
+            args: [1],
             msg: 'Price cannot be less than 1',
           },
           max: {
-            args: 999999999,
+            args: [999999999],
             msg: 'Price cannot be greater than 9,999,999,999',
           },
         },
@@ -194,7 +199,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          isIn: [['sale', 'rent']],
+          isIn: {
+            args: [LISTING_TYPES],
+            msg: `Listing type must be one of the following: ${LISTING_TYPES.join(', ')}`,
+          },
         },
       },
     },

@@ -1,49 +1,42 @@
 const KoaRouter = require('koa-router');
-const ApiError = require('./utils/apiError');
 
-const { validateIntParam } = require('./utils/utils');
+const ApiError = require('./utils/apiError');
+const { validateIntParam, authJWT, getUserIdFromToken } = require('./utils/utils');
 
 const router = new KoaRouter();
 
-const DEFAULT_AVATAR = `https://png.pngtree.com/png-vector/20191026/ourlarge/\
-pngtree-avatar-vector-icon-white-background-png-image_1870181.jpg${''}`;
-
 router.param('userId', validateIntParam);
 
-router.post('user.create', '/users', async (ctx) => {
-  const {
-    firstName, //
-    lastName,
-    email,
-    password,
-  } = ctx.request.body;
+router.get('user.me', '/users/me', authJWT, getUserIdFromToken, async (ctx) => {
+  const user = await ctx.orm.User.findByPk(ctx.state.userId, {
+    attributes: { exclude: ['hashedPassword'] },
+  });
+  ctx.body = { user };
+});
+
+router.patch('user.edit', '/users/:userId', authJWT, getUserIdFromToken, async (ctx) => {
+  const { userId } = ctx.params;
+  if (ctx.state.userId !== userId) {
+    ctx.throw(401, 'Unauthorized');
+  }
   try {
-    const user = await ctx.orm.User.create({
-      firstName,
-      lastName,
-      email,
-      hashedPassword: password,
-      avatarLink: DEFAULT_AVATAR,
+    const user = await ctx.orm.User.findByPk(ctx.state.userId);
+    ctx.request.body.hashedPassword = ctx.request.body.password;
+    delete ctx.request.body.password;
+    Object.keys(ctx.request.body).forEach((key) => {
+      user[key] = ctx.request.body[key];
     });
-    // TODO: Return JWT somewhere??
-    ctx.body = {
-      userId: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-    };
+    await user.save();
+    ctx.status = 204;
   } catch (error) {
     const errors = {};
     if (error instanceof ctx.orm.Sequelize.ValidationError) {
       error.errors.forEach((errorItem) => {
         errors[errorItem.path] = errorItem.message;
       });
-    } else {
-      errors.password = error.message;
+      throw new ApiError(400, 'Could not modify user', { errors });
     }
-    throw new ApiError(400, 'Could not create user', {
-      errors,
-    });
+    throw error;
   }
 });
 
