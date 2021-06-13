@@ -1,7 +1,12 @@
 const KoaRouter = require('koa-router');
 const ApiError = require('./utils/apiError');
 
-const { validateIntParam, authJWT, getUserIdFromToken, requiredParams } = require('./utils/utils');
+const {
+  validateIntParam, //
+  authJWT,
+  getUserIdFromToken,
+  requiredParams,
+} = require('./utils/utils');
 const { loadSingleProperty } = require('./utils/queries');
 
 const router = new KoaRouter();
