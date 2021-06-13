@@ -30,6 +30,9 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           isNumeric: true,
+          notSellerId(value) {
+            return this.sellerId !== value;
+          },
         },
       },
       sellerId: {
@@ -37,6 +40,9 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           isNumeric: true,
+          notBuyerId(value) {
+            return this.buyerId !== value;
+          },
         },
       },
       propertyId: {
@@ -60,7 +66,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
         validate: {
-          isAfter: new Date().toISOString(),
+          isAfter: {
+            args: [new Date().toISOString()],
+            msg: 'Date cannot be earlier than present',
+          },
         },
       },
     },
