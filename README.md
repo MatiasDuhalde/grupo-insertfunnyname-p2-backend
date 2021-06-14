@@ -1,56 +1,50 @@
-# Template
+# FindHomy API
 
-Template built with [koa](http://koajs.com/) for IIC2513 - Tecnologías y Aplicaciones Web, Pontificia Universidad Católica de Chile.
+**Grupo InsertFunnyName**
 
-## Prerequisites:
+## Docs
 
-- PostgreSQL
-  - you will need a database with name and user/password as configured in `src/config/database.js`
-- Node.js LTS (10.x or 12.x)
-- [Yarn](https://yarnpkg.com)
+La documentación fue generada usando la herramienta de Postman, y se puede encontrar publicada en el siguiente link:
 
-## Project Setup
+https://documenter.getpostman.com/view/15970655/TzeTKA1X
 
-- Clone repository
-- Install dependencies:
-  - `yarn install`
+Se puede exportar una Collection a Postman para poder probar los endpoints directamente en la app usando el botón _Run in Postman_ que se encuentra arriba y a la derecha de la documentación.
 
-## Database Setup (development)
+Se incluye también la base para los endpoints secundarios, pero no están implementados. La lista de endpoints implementados se puede ver al comienzo de la documentación (están todos los principales)
 
-### Install postgresql
+Los endpoints que requieren un token se encuentran señalados en la documentación con un candado, y además, poseen un subtitulo que indica que requieren un bearer token. Este token se obtiene accediendo al endpoint `POST /auth`.
 
-- On Mac OS X using Homebrew: `brew install postgresql`
-  - Start service: check [LaunchRocket](https://github.com/jimbojsb/launchrocket) or [lunchy](https://www.moncefbelyamani.com/how-to-install-postgresql-on-a-mac-with-homebrew-and-lunchy/) for postgresql service management
-- [Other platforms](https://www.postgresql.org/download/)
+Aquellos endpoints que requieren un _body_, se muestra la estructura que este debe tener, indicando el tipo de cada entrada, y si son opcionales o no.
 
-### Create development database
+En la columna de la derecha de la documentación (asumiendo que se usa el layout default para la interfaz _Double Column_), se pueden ver ejemplos de request con `cURL`, y el response correspondiente que retorna. Se incluye un ejemplo de Success, y varios ejemplos de errores que pueden ocurrir.
 
-```sh
-createdb iic2513template_dev
+## Production deploy url
+
+https://findhomy-api.herokuapp.com
+
+Para probar los endpoints de la versión de producción de este archivo JSON, se debe anteponer esta url a todos los paths, como en el siguiente ejemplo:
+
+**GET /properties**
+
+```bash
+https://findhomy-api.herokuapp.com/properties
 ```
 
-### Run migrations
+## Local
 
-```sh
-./node_modules/.bin/sequelize db:migrate
+http://localhost:3000
+
+Para probar la versión local, se deben instalar los _node modules_ usando `yarn install`, y ejecutar el servidor usando `yarn dev` o `yarn start`. También, se deben entregarle al programa variables de entorno. Esto se puede hacer con un archivo `.env` colocado en la base de este repositorio, con la siguiente estructura:
+
+```env
+DB_DIALECT=postgres
+
+DB_HOST=127.0.0.1
+PORT=3000
+
+DB_NAME=my_db_name
+DB_USERNAME=my_db_username
+DB_PASSWORD=my_db_password
+
+JWT_SECRET=my_jwt_secret
 ```
-
-## Run the app!
-
-```sh
-yarn start
-```
-
-or directly
-
-```sh
-node index.js
-```
-
-or, if you want automatic restart after any change in your files
-
-```sh
-yarn dev
-```
-
-Now go to http://localhost:3000 and start browsing :)
