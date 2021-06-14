@@ -85,4 +85,111 @@ describe('Property routes', () => {
       });
     });
   });
+  describe('GET /properties', () => {
+    const dummyProperty1 = {
+      title: 'Cool House and Such',
+      type: 'other',
+      region: 'Metropolitana',
+      commune: 'Macul',
+      street: 'Vicuña Mackenna 4860',
+      price: 1,
+      listingType: 'rent',
+    };
+    const dummyProperty2 = {
+      title: 'Cool House and Such the Sequel',
+      type: 'other',
+      region: 'Metropolitana',
+      commune: 'Macul',
+      street: 'Vicuña Mackenna 4860, Campus 2',
+      price: 2,
+      listingType: 'rent',
+    };
+
+    const dummyProperty3 = {
+      title: 'The house electric boogaloo',
+      type: 'other',
+      region: 'Maule',
+      commune: 'Linares',
+      street: 'My street 123',
+      price: 100,
+      listingType: 'rent',
+    };
+
+    const authorizedPostProperty = (body) => {
+      const req = request
+        .post('/properties')
+        .auth(auth.token, { type: 'bearer' })
+        .set('Content-type', 'application/json');
+      return req.send(body);
+    };
+
+    const authorizedGetProperties = () => request
+      .get('/properties')
+      .auth(auth.token, { type: 'bearer' });
+
+    let getResponse;
+    describe('when user sees properties', () => {
+      beforeAll(async () => {
+        await authorizedPostProperty(dummyProperty1);
+        await authorizedPostProperty(dummyProperty2);
+        await authorizedPostProperty(dummyProperty3);
+        getResponse = await authorizedGetProperties();
+      });
+      test('responds with 200 status code', () => {
+        expect(getResponse.status).toBe(200);
+      });
+      test('responds with a json body type', () => {
+        expect(getResponse.type).toEqual('application/json');
+      });
+    });
+  });
+  describe('Get /property/:id', () => {
+    const dummyProperty = {
+      title: 'Cool House and Such',
+      type: 'other',
+      region: 'Metropolitana',
+      commune: 'Macul',
+      street: 'Vicuña Mackenna 4860',
+      price: 1,
+      listingType: 'rent',
+    };
+
+    const authorizedPostProperty = (body) => {
+      const req = request
+        .post('/property')
+        .auth(auth.token, { type: 'bearer' })
+        .set('Content-type', 'application/json');
+      return req.send(body);
+    };
+
+    const authorizedGetProperty = (id) => request
+      .get(`/property/${id}`)
+      .auth(auth.token, { type: 'bearer' });
+
+    const unauthorizedGetProperty = (id) => request.get(`/property/${id}`);
+
+    let getResponseAuthorized;
+    let getResponseUnauthorized;
+
+    let property;
+    beforeAll(async () => {
+      await authorizedPostProperty(dummyProperty);
+      property = await app.context.orm.Property.findOne({ where: { userId: 1 } });
+      getResponseAuthorized = await authorizedGetProperty(property.dataValues.id);
+      getResponseUnauthorized = await unauthorizedGetProperty(property.dataValues.id);
+      console.log(getResponseAuthorized); // Issue finding ID in Property
+    });
+  
+    describe('when user sees an authorized property', () => {
+      test('responds with 200 status code', async () => {
+        expect(getResponseAuthorized.status).toBe(200);
+      });
+    });
+
+    describe('when user sees an unauthorized property', () => {
+      test('responds with 401 status code', () => {
+        expect(getResponseUnauthorized.status).toBe(401);
+      });
+    });
+  });
 });
