@@ -15,7 +15,7 @@ describe('Property routes', () => {
   let auth;
 
   beforeAll(async () => {
-    await app.context.orm.sequelize.sync({ force: true });
+    await app.context.orm.sequelize.sync({ force: true, alter: true });
     await app.context.orm.User.create(dummyUser);
 
     const authResponse = await request
@@ -143,7 +143,7 @@ describe('Property routes', () => {
       });
     });
   });
-  describe('Get /property/:id', () => {
+  describe('Get /property/:propertyId', () => {
     const dummyProperty = {
       title: 'Cool House and Such',
       type: 'other',
@@ -156,39 +156,150 @@ describe('Property routes', () => {
 
     const authorizedPostProperty = (body) => {
       const req = request
-        .post('/property')
+        .post('/properties')
         .auth(auth.token, { type: 'bearer' })
         .set('Content-type', 'application/json');
       return req.send(body);
     };
 
     const authorizedGetProperty = (id) => request
-      .get(`/property/${id}`)
+      .get(`/properties/${id}`)
       .auth(auth.token, { type: 'bearer' });
 
-    const unauthorizedGetProperty = (id) => request.get(`/property/${id}`);
-
     let getResponseAuthorized;
-    let getResponseUnauthorized;
 
     let property;
     beforeAll(async () => {
-      await authorizedPostProperty(dummyProperty);
-      property = await app.context.orm.Property.findOne({ where: { userId: 1 } });
-      getResponseAuthorized = await authorizedGetProperty(property.dataValues.id);
-      getResponseUnauthorized = await unauthorizedGetProperty(property.dataValues.id);
-      console.log(getResponseAuthorized); // Issue finding ID in Property
+      property = await authorizedPostProperty(dummyProperty);
+      getResponseAuthorized = await authorizedGetProperty(property.body.id);
     });
-  
     describe('when user sees an authorized property', () => {
       test('responds with 200 status code', async () => {
         expect(getResponseAuthorized.status).toBe(200);
       });
+      test('responds with json body type', () => {
+        expect(getResponseAuthorized.type).toEqual('application/json');
+      });
+    });
+  });
+  describe('PATCH /properties/:propertyId', () => {
+    const dummyProperty = {
+      title: 'Cool House and Such',
+      type: 'other',
+      region: 'Metropolitana',
+      commune: 'Macul',
+      street: 'Vicuña Mackenna 4860',
+      price: 1,
+      listingType: 'rent',
+    };
+
+    const modifiedDummyProperty = {
+      title: 'Cool House and Such Modified',
+      street: 'Vicuña Mackenna 480',
+      price: 112,
+    };
+
+    const authorizedPostProperty = (body) => {
+      const req = request
+        .post('/properties')
+        .auth(auth.token, { type: 'bearer' })
+        .set('Content-type', 'application/json');
+      return req.send(body);
+    };
+
+    const authorizedPatchProperty = (id, body) => {
+      const req = request
+        .patch(`/properties/${id}`)
+        .auth(auth.token, { type: 'bearer' })
+        .set('Content-type', 'application/json');
+      return req.send(body);
+    };
+
+    const unauthorizedPatchProperty = (id, body) => {
+      const req = request
+        .patch(`/properties/${id}`)
+        .set('Content-type', 'application/json');
+      return req.send(body);
+    };
+
+    let property;
+    let patchResponseAuthorized;
+    let patchResponseUnauthorized;
+    beforeAll(async () => {
+      property = await authorizedPostProperty(dummyProperty);
+      patchResponseAuthorized = await authorizedPatchProperty(property.body.id,
+        modifiedDummyProperty);
+      patchResponseUnauthorized = await unauthorizedPatchProperty(property.body.id,
+        modifiedDummyProperty);
     });
 
-    describe('when user sees an unauthorized property', () => {
+    describe('when authorized user modifies a property', () => {
+      test('responds with 204 status code', () => {
+        expect(patchResponseAuthorized.status).toBe(204);
+      });
+      test('responds with an empty body type', () => {
+        expect(patchResponseAuthorized.type).toEqual('');
+      });
+    });
+    describe('when unauthorized user modifies a property', () => {
       test('responds with 401 status code', () => {
-        expect(getResponseUnauthorized.status).toBe(401);
+        expect(patchResponseUnauthorized.status).toBe(401);
+      });
+      test('responds with an empty body type', () => {
+        expect(patchResponseUnauthorized.type).toEqual('text/plain');
+      });
+    });
+  });
+  describe('DELETE /properties/:propertyId', () => {
+    const dummyProperty = {
+      title: 'Cool House and Such',
+      type: 'other',
+      region: 'Metropolitana',
+      commune: 'Macul',
+      street: 'Vicuña Mackenna 4860',
+      price: 1,
+      listingType: 'rent',
+    };
+
+
+    const authorizedPostProperty = (body) => {
+      const req = request
+        .post('/properties')
+        .auth(auth.token, { type: 'bearer' })
+        .set('Content-type', 'application/json');
+      return req.send(body);
+    };
+
+    const authorizedDeleteProperty = (id) => request
+      .delete(`/properties/${id}`)
+      .auth(auth.token, { type: 'bearer' });
+
+    const unauthorizedDeleteProperty = (id) => request
+      .delete(`/properties/${id}`);
+
+    let property;
+    let deleteResponseAuthorized;
+    let deleteResponseUnauthorized;
+    beforeAll(async () => {
+      property = await authorizedPostProperty(dummyProperty);
+      deleteResponseAuthorized = await authorizedDeleteProperty(property.body.id);
+      deleteResponseUnauthorized = await unauthorizedDeleteProperty(property.body.id);
+    });
+
+    describe('when authorized user deletes a property', () => {
+      test('responds with 204 status code', () => {
+        expect(deleteResponseAuthorized.status).toBe(204);
+      });
+      test('responds with an empty body type', () => {
+        expect(deleteResponseAuthorized.type).toEqual('');
+      });
+    });
+    describe('when unauthorized user deletes a property', () => {
+      test('responds with 401 status code', () => {
+        expect(deleteResponseUnauthorized.status).toBe(401);
+      });
+      test('responds with an empty body type', () => {
+        expect(deleteResponseUnauthorized.type).toEqual('text/plain');
       });
     });
   });

@@ -49,7 +49,7 @@ const getUserIdFromToken = (ctx, next) => {
   const {
     jwtDecoded: { sub },
   } = ctx.state;
-  ctx.state.userId = sub;
+  ctx.state.userId = `${sub}`;
   return next();
 };
 
