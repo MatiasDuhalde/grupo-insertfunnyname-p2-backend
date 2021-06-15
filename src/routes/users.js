@@ -21,8 +21,10 @@ router.patch('user.edit', '/users/:userId', authJWT, getUserIdFromToken, async (
   }
   try {
     const user = await ctx.orm.User.findByPk(ctx.state.userId);
-    ctx.request.body.hashedPassword = ctx.request.body.password;
-    delete ctx.request.body.password;
+    if (ctx.request.body.password !== undefined) {
+      ctx.request.body.hashedPassword = ctx.request.body.password;
+      delete ctx.request.body.password;
+    }
     Object.keys(ctx.request.body).forEach((key) => {
       user[key] = ctx.request.body[key];
     });

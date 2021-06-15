@@ -15,7 +15,7 @@ describe('Property routes', () => {
   let auth;
 
   beforeAll(async () => {
-    await app.context.orm.sequelize.sync({ force: true, alter: true });
+    await app.context.orm.sequelize.sync({ force: true });
     await app.context.orm.User.create(dummyUser);
 
     const authResponse = await request
@@ -260,7 +260,6 @@ describe('Property routes', () => {
       price: 1,
       listingType: 'rent',
     };
-
 
     const authorizedPostProperty = (body) => {
       const req = request
