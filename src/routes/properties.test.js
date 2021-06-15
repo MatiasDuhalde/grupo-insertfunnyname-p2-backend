@@ -11,6 +11,15 @@ describe('Property routes', () => {
     hashedPassword: 'testuser',
     avatarLink: 'https://cdn.fakercloud.com/avatars/tgerken_128.jpg',
   };
+  const dummyProperty = {
+    title: 'Cool House and Such',
+    type: 'other',
+    region: 'Metropolitana',
+    commune: 'Macul',
+    street: 'Vicuña Mackenna 4860',
+    price: 1,
+    listingType: 'rent',
+  };
 
   let auth;
 
@@ -27,21 +36,20 @@ describe('Property routes', () => {
     auth = authResponse.body;
   });
 
+  let property;
+  beforeEach(async () => {
+    property = await request
+      .post('/properties')
+      .auth(auth.token, { type: 'bearer' })
+      .set('Content-type', 'application/json')
+      .send(dummyProperty);
+  });
+
   afterAll(async () => {
     await app.context.orm.sequelize.close();
   });
 
   describe('POST /property', () => {
-    const dummyProperty = {
-      title: 'Cool House and Such',
-      type: 'other',
-      region: 'Metropolitana',
-      commune: 'Macul',
-      street: 'Vicuña Mackenna 4860',
-      price: 1,
-      listingType: 'rent',
-    };
-
     describe('when user is authorized', () => {
       describe('when fields are empty', () => {
         let response;
@@ -220,25 +228,6 @@ describe('Property routes', () => {
   });
 
   describe('GET /property/:propertyId', () => {
-    const dummyProperty = {
-      title: 'Cool House and Such',
-      type: 'other',
-      region: 'Metropolitana',
-      commune: 'Macul',
-      street: 'Vicuña Mackenna 4860',
-      price: 1,
-      listingType: 'rent',
-    };
-
-    let property;
-    beforeAll(async () => {
-      property = await request
-        .post('/properties')
-        .auth(auth.token, { type: 'bearer' })
-        .set('Content-type', 'application/json')
-        .send(dummyProperty);
-    });
-
     describe('when property id exists', () => {
       let response;
 
@@ -285,31 +274,11 @@ describe('Property routes', () => {
   });
 
   describe('PATCH /properties/:propertyId', () => {
-    const dummyProperty = {
-      title: 'Cool House and Such',
-      type: 'other',
-      region: 'Metropolitana',
-      commune: 'Macul',
-      street: 'Vicuña Mackenna 4860',
-      price: 1,
-      listingType: 'rent',
-    };
-
     const modifiedDummyProperty = {
       title: 'Cool House and Such Modified',
       street: 'Vicuña Mackenna 480',
       price: 112,
     };
-
-    let property;
-    beforeAll(async () => {
-      // Create property
-      property = await request
-        .post('/properties')
-        .auth(auth.token, { type: 'bearer' })
-        .set('Content-type', 'application/json')
-        .send(dummyProperty);
-    });
 
     describe('when authorized user modifies a property', () => {
       let response;
@@ -350,25 +319,6 @@ describe('Property routes', () => {
   });
 
   describe('DELETE /properties/:propertyId', () => {
-    const dummyProperty = {
-      title: 'Cool House and Such',
-      type: 'other',
-      region: 'Metropolitana',
-      commune: 'Macul',
-      street: 'Vicuña Mackenna 4860',
-      price: 1,
-      listingType: 'rent',
-    };
-
-    let property;
-    beforeAll(async () => {
-      property = await request
-        .post('/properties')
-        .auth(auth.token, { type: 'bearer' })
-        .set('Content-type', 'application/json')
-        .send(dummyProperty);
-    });
-
     describe('when authorized user deletes a property', () => {
       let response;
       beforeAll(async () => {
