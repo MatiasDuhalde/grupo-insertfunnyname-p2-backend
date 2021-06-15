@@ -21,10 +21,6 @@ describe('User routes', () => {
     password: 'testuser',
   };
 
-  beforeAll(async () => {
-    await app.context.orm.sequelize.sync({ force: true });
-  });
-
   beforeEach(async () => {
     await app.context.orm.sequelize.sync({ force: true });
   });
