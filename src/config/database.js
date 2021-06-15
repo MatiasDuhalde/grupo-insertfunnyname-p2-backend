@@ -19,6 +19,7 @@ const config = {
   test: {
     extend: 'default',
     database: 'iic2513template_test',
+    logging: false,
   },
   production: {
     extend: 'default',

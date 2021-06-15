@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const KoaRouter = require('koa-router');
 
+require('dotenv').config();
+
 const ApiError = require('./utils/apiError');
 const { validateIntParam, requiredParams } = require('./utils/utils');
 
@@ -72,6 +74,7 @@ router.post(
     }
     const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET);
     ctx.body = { token };
+    ctx.status = 201;
   },
 );
 
