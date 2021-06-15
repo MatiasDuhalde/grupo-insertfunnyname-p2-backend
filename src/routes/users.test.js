@@ -8,7 +8,12 @@ const postUser = (body) => {
   return req.send(body);
 };
 
-describe('Users routes', () => {
+const postAuth = async (body) => {
+  const req = request.post('/auth').set('Content-type', 'application/json');
+  return req.send(body);
+};
+
+describe('User routes', () => {
   const dummyUser = {
     firstName: 'Test',
     lastName: 'User',
@@ -29,7 +34,7 @@ describe('Users routes', () => {
   });
 
   describe('POST /users', () => {
-    describe('when a user is created', () => {
+    describe('when a user is created with valid fields', () => {
       let response;
 
       beforeAll(async () => {
@@ -44,15 +49,48 @@ describe('Users routes', () => {
         expect(response.type).toEqual('application/json');
       });
     });
+
+    describe('when a user is created with empty fields', () => {
+      let response;
+
+      beforeAll(async () => {
+        response = await postUser({});
+      });
+
+      test('responds with 201 status code', () => {
+        expect(response.status).toBe(422);
+      });
+
+      test('responds with JSON body type', () => {
+        expect(response.type).toEqual('application/json');
+      });
+    });
+
+    describe('when a user is created with invalid fields', () => {
+      const wrongUserData = {
+        firstName: '',
+        lastName: '',
+        password: '',
+      };
+
+      let response;
+
+      beforeAll(async () => {
+        response = await postUser(wrongUserData);
+      });
+
+      test('responds with 201 status code', () => {
+        expect(response.status).toBe(422);
+      });
+
+      test('responds with JSON body type', () => {
+        expect(response.type).toEqual('application/json');
+      });
+    });
   });
 
   describe('POST /auth', () => {
-    const postAuth = (body) => {
-      const req = request.post('/auth').set('Content-type', 'application/json');
-      return req.send(body);
-    };
-
-    describe('when user is authenticated', () => {
+    describe('when user is authenticated correctly', () => {
       let response;
 
       beforeAll(async () => {
@@ -68,81 +106,75 @@ describe('Users routes', () => {
         expect(response.type).toEqual('application/json');
       });
     });
+
+    describe('when email or password are wrong', () => {
+      let response;
+
+      beforeAll(async () => {
+        await postUser(dummyUser);
+        response = await postAuth({ email: 'notanemail@gmail.com', password: 'password' });
+      });
+
+      test('responds with 401 status code', () => {
+        expect(response.status).toBe(401);
+      });
+
+      test('responds with JSON body type', () => {
+        expect(response.type).toEqual('application/json');
+      });
+    });
   });
 
   describe('GET users/me', () => {
-    let authGet;
+    let auth;
 
-    const authorizedGetUser = () => request
-      .get('/users/me')
-      .auth(authGet.token, { type: 'bearer' })
-      .set('Content-type', 'application/json');
-
-    const unauthorizedGetUser = () => request
-      .get('/users/me')
-      .set('Content-type', 'application/json');
-
-    let getResponseAuthorized;
-    let getResponseunAuthorized;
     beforeAll(async () => {
       await postUser(dummyUser);
-
       const authResponse = await request
         .post('/auth')
         .set('Content-type', 'application/json')
         .send({ email: dummyUser.email, password: dummyUser.password });
-      authGet = authResponse.body;
-
-      getResponseAuthorized = await authorizedGetUser();
-      getResponseunAuthorized = await unauthorizedGetUser();
+      auth = authResponse.body;
     });
 
     describe('when authenticated user sees their profile', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request.get('/users/me').auth(auth.token, { type: 'bearer' }).send();
+      });
+
       test('responds with 200 status code', () => {
-        expect(getResponseAuthorized.status).toBe(200);
+        expect(response.status).toBe(200);
       });
 
       test('responds with JSON body type', () => {
-        expect(getResponseAuthorized.type).toEqual('application/json');
+        expect(response.type).toEqual('application/json');
       });
     });
 
     describe('when unauthenticated user enters the route', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request.get('/users/me').send();
+      });
       test('responds with 401 status code', () => {
-        expect(getResponseunAuthorized.status).toBe(401);
+        expect(response.status).toBe(401);
       });
 
       test('responds with plain body type', () => {
-        expect(getResponseunAuthorized.type).toEqual('text/plain');
+        expect(response.type).toEqual('text/plain');
       });
     });
   });
 
   describe('PATCH /users/:userId', () => {
-    let authPatch;
+    let auth;
     const modifiedDummyUser = {
       firstName: 'modifiedTest',
       lastName: 'modifiedUser',
     };
 
-    const authorizedPatchUser = (id, body) => {
-      const req = request
-        .patch(`/users/${id}`)
-        .auth(authPatch.token, { type: 'bearer' })
-        .set('Content-type', 'application/json');
-      return req.send(body);
-    };
-    const unauthorizedPatchUser = (id, body) => {
-      const req = request
-        .patch(`/users/${id}`)
-        .set('Content-type', 'application/json');
-      return req.send(body);
-    };
-
-    let patchUser;
-    let patchResponseAuthorized;
-    let patchResponseUnauthorized;
-
+    let userResponse;
     beforeAll(async () => {
       await postUser(dummyUser);
 
@@ -150,40 +182,45 @@ describe('Users routes', () => {
         .post('/auth')
         .set('Content-type', 'application/json')
         .send({ email: dummyUser.email, password: dummyUser.password });
-      authPatch = authResponse.body;
+      auth = authResponse.body;
 
-      patchUser = await request
-        .get('/users/me')
-        .auth(authPatch.token, { type: 'bearer' })
-        .send();
-
-      patchResponseAuthorized = await authorizedPatchUser(
-        patchUser.body.user.id,
-        modifiedDummyUser,
-      );
-      patchResponseUnauthorized = await unauthorizedPatchUser(
-        patchUser.body.user.id,
-        modifiedDummyUser,
-      );
+      userResponse = await request.get('/users/me').auth(auth.token, { type: 'bearer' }).send();
     });
 
     describe('when authorized user modifies profile information', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request
+          .patch(`/users/${userResponse.body.user.id}`)
+          .set('Content-type', 'application/json')
+          .auth(auth.token, { type: 'bearer' })
+          .send(modifiedDummyUser);
+      });
+
       test('responds with 204 status code', () => {
-        expect(patchResponseAuthorized.status).toBe(204);
+        expect(response.status).toBe(204);
       });
 
       test('responds with an empty body type', () => {
-        expect(patchResponseAuthorized.type).toEqual('');
+        expect(response.type).toEqual('');
       });
     });
 
     describe('when unauthorized user modifies profile information', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request
+          .patch(`/users/${userResponse.body.user.id}`)
+          .set('Content-type', 'application/json')
+          .send(modifiedDummyUser);
+      });
+
       test('responds with 401 status code', () => {
-        expect(patchResponseUnauthorized.status).toBe(401);
+        expect(response.status).toBe(401);
       });
 
       test('responds with an empty body type', () => {
-        expect(patchResponseUnauthorized.type).toEqual('text/plain');
+        expect(response.type).toEqual('text/plain');
       });
     });
   });
