@@ -138,12 +138,12 @@ describe('Property routes', () => {
       test('responds with 200 status code', () => {
         expect(getResponse.status).toBe(200);
       });
-      test('responds with a json body type', () => {
+      test('responds with a JSON body type', () => {
         expect(getResponse.type).toEqual('application/json');
       });
     });
   });
-  describe('Get /property/:propertyId', () => {
+  describe('GET /property/:propertyId', () => {
     const dummyProperty = {
       title: 'Cool House and Such',
       type: 'other',
@@ -177,7 +177,7 @@ describe('Property routes', () => {
       test('responds with 200 status code', async () => {
         expect(getResponseAuthorized.status).toBe(200);
       });
-      test('responds with json body type', () => {
+      test('responds with JSON body type', () => {
         expect(getResponseAuthorized.type).toEqual('application/json');
       });
     });

@@ -74,6 +74,7 @@ router.post(
     }
     const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET);
     ctx.body = { token };
+    ctx.status = 201;
   },
 );
 
