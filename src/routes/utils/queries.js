@@ -7,6 +7,14 @@ const loadSingleProperty = async (ctx, next) => {
   return next();
 };
 
+const loadSingleComment = async (ctx, next) => {
+  const { commentId } = ctx.params;
+  ctx.state.comment = await ctx.orm.Comment.findByPk(commentId);
+  if (!ctx.state.comment) throw new ApiError(404, `Comment '${commentId}' not found`);
+  return next();
+};
+
 module.exports = {
   loadSingleProperty,
+  loadSingleComment,
 };
