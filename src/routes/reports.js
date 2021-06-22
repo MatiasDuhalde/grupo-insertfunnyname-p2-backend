@@ -1,10 +1,12 @@
 const KoaRouter = require('koa-router');
+const ApiError = require('./utils/apiError');
 const { loadSingleComment } = require('./utils/queries');
 
 const {
   validateIntParam, //
   getUserIdFromToken,
   authJWT,
+  requiredParams,
 } = require('./utils/utils');
 
 const router = new KoaRouter();
@@ -14,25 +16,61 @@ router.param('commentId', validateIntParam);
 
 router.post(
   'report.user.create',
-  '/comments/:commentId/comments',
+  '/users/:userId/reports',
   authJWT,
   getUserIdFromToken,
-  loadSingleComment,
+  requiredParams({
+    reason: 'string',
+  }),
   async (ctx) => {
-    const { commentId } = ctx.params;
-    const { body } = ctx.request.body;
+    const reportedUserId = ctx.params.userId;
+    const { reason } = ctx.request.body;
+    const reportedUser = await ctx.orm.User.findByPk(reportedUserId, {
+      attributes: { exclude: ['hashedPassword'] },
+    });
+    if (reportedUser === null) {
+      throw new ApiError(404, `Could not find user with id '${reportedUserId}'`);
+    }
     try {
-      const comment = await ctx.state.property.createComment({
+      const userReport = await reportedUser.createMadeUserReport({
         userId: ctx.state.userId,
-        propertyId,
-        body,
+        reportedUserId,
+        reason,
       });
       ctx.status = 201;
       ctx.body = {
-        id: comment.id,
+        id: userReport.id,
       };
     } catch (error) {
-      throw new ApiError(404, `Could not create comment for property listing '${propertyId}'`);
+      throw new ApiError(404, `Could not create report for user with id '${reportedUserId}'`);
+    }
+  },
+);
+
+router.post(
+  'report.comment.create',
+  '/comments/:commentId/reports',
+  authJWT,
+  getUserIdFromToken,
+  loadSingleComment,
+  requiredParams({
+    reason: 'string',
+  }),
+  async (ctx) => {
+    const { commentId } = ctx.params;
+    const { reason } = ctx.request.body;
+    try {
+      const commentReport = await ctx.state.comment.createReceivedCommentReport({
+        userId: ctx.state.userId,
+        commentId,
+        reason,
+      });
+      ctx.status = 201;
+      ctx.body = {
+        id: commentReport.id,
+      };
+    } catch (error) {
+      throw new ApiError(404, `Could not create report for comment with id '${commentId}'`);
     }
   },
 );

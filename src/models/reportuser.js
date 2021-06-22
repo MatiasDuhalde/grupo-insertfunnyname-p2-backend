@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       userId: {
         type: DataTypes.BIGINT,
-        allowNull: false,
+        anllowNull: false,
         validate: {
           isNumeric: true,
         },
