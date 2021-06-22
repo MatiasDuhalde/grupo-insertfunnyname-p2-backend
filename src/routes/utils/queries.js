@@ -14,7 +14,15 @@ const loadSingleComment = async (ctx, next) => {
   return next();
 };
 
+const loadSingleMeeting = async (ctx, next) => {
+  const { meetingId } = ctx.params;
+  ctx.state.meeting = await ctx.orm.Meeting.findByPk(meetingId);
+  if (!ctx.state.meeting) throw new ApiError(404, `Meeting '${meetingId}' not found`);
+  return next();
+};
+
 module.exports = {
   loadSingleProperty,
   loadSingleComment,
+  loadSingleMeeting,
 };

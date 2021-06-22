@@ -7,7 +7,7 @@ const {
   getUserIdFromToken,
   requiredParams,
 } = require('./utils/utils');
-const { loadSingleProperty } = require('./utils/queries');
+const { loadSingleProperty, loadSingleMeeting } = require('./utils/queries');
 
 const router = new KoaRouter();
 
@@ -90,5 +90,73 @@ router.get('user.meeting.list', '/users/me/meetings', authJWT, getUserIdFromToke
     throw new ApiError(400, `Could not retrieve user '${ctx.state.userId}' meetings`);
   }
 });
+
+router.get(
+  'meeting.show',
+  '/meetings/:meetingId',
+  authJWT,
+  getUserIdFromToken,
+  loadSingleMeeting,
+  async (ctx) => {
+    const { userId } = ctx.state;
+    const { buyerId, sellerId } = ctx.state.meeting;
+    if (userId !== buyerId && userId !== sellerId) {
+      ctx.throw(401, 'Unauthorized');
+    }
+    ctx.response.body = { meeting: ctx.state.meeting };
+  },
+);
+
+router.patch(
+  'meeting.edit',
+  '/meetings/:meetingId',
+  authJWT,
+  getUserIdFromToken,
+  loadSingleMeeting,
+  async (ctx) => {
+    const { userId } = ctx.state;
+    const { buyerId, sellerId } = ctx.state.meeting;
+    if (userId !== buyerId && userId !== sellerId) {
+      ctx.throw(401, 'Unauthorized');
+    }
+    try {
+      Object.keys(ctx.request.body).forEach((key) => {
+        ctx.state.meeting[key] = ctx.request.body[key];
+      });
+      await ctx.state.meeting.save();
+      ctx.status = 204;
+    } catch (error) {
+      const errors = {};
+      if (error instanceof ctx.orm.Sequelize.ValidationError) {
+        error.errors.forEach((errorItem) => {
+          errors[errorItem.path] = errorItem.message;
+        });
+        throw new ApiError(400, 'Could not modify meeting', { errors });
+      }
+      throw error;
+    }
+  },
+);
+
+router.delete(
+  'meeting.delete',
+  '/meetings/:meetingId',
+  authJWT,
+  getUserIdFromToken,
+  loadSingleMeeting,
+  async (ctx) => {
+    const { userId } = ctx.state;
+    const { buyerId, sellerId } = ctx.state.meeting;
+    if (userId !== buyerId && userId !== sellerId) {
+      ctx.throw(401, 'Unauthorized');
+    }
+    try {
+      ctx.state.meeting.destroy();
+      ctx.status = 204;
+    } catch (error) {
+      throw new ApiError(400, 'Could not delete meeting');
+    }
+  },
+);
 
 module.exports = router;

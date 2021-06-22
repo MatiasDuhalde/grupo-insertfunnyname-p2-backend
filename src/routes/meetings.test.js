@@ -40,12 +40,14 @@ describe('Meeting routes', () => {
   let authBuyer;
   let authSeller;
   let propertyId;
+  let buyerUser;
+  let sellerUser;
 
   beforeAll(async () => {
     await app.context.orm.sequelize.sync({ force: true });
     // Create test user
-    await app.context.orm.User.create(dummyUserBuyer);
-    const sellerUser = await app.context.orm.User.create(dummyUserSeller);
+    buyerUser = await app.context.orm.User.create(dummyUserBuyer);
+    sellerUser = await app.context.orm.User.create(dummyUserSeller);
 
     // Get auth token
     authBuyer = (
@@ -107,7 +109,7 @@ describe('Meeting routes', () => {
             .send(wrongMeetingFields);
         });
 
-        test('responds with 422 status code', () => {
+        test('responds with 400 status code', () => {
           expect(response.status).toBe(400);
         });
 
@@ -155,7 +157,7 @@ describe('Meeting routes', () => {
         expect(response.status).toBe(401);
       });
 
-      test('responds with JSON body type', () => {
+      test('responds with text body type', () => {
         expect(response.type).toEqual('text/plain');
       });
     });
@@ -268,7 +270,220 @@ describe('Meeting routes', () => {
         expect(response.status).toBe(401);
       });
 
+      test('responds with text body type', () => {
+        expect(response.type).toEqual('text/plain');
+      });
+    });
+  });
+
+  // GET HERE
+  describe('GET /meetings/:meetingId', () => {
+    let meetingId;
+    beforeAll(async () => {
+      const meeting = await app.context.orm.Meeting.create({
+        sellerId: sellerUser.id,
+        buyerId: buyerUser.id,
+        propertyId,
+        ...dummyMeeting,
+      });
+      meetingId = meeting.id;
+    });
+
+    describe('when seller user is authenticated', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request
+          .get(`/meetings/${meetingId}`)
+          .auth(authSeller.token, { type: 'bearer' })
+          .send();
+      });
+      test('responds with 200 status code', () => {
+        expect(response.status).toBe(200);
+      });
+
       test('responds with JSON body type', () => {
+        expect(response.type).toEqual('application/json');
+      });
+    });
+    describe('when buyer user is authenticated', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request
+          .get(`/meetings/${meetingId}`)
+          .auth(authBuyer.token, { type: 'bearer' })
+          .send();
+      });
+      test('responds with 200 status code', () => {
+        expect(response.status).toBe(200);
+      });
+
+      test('responds with JSON body type', () => {
+        expect(response.type).toEqual('application/json');
+      });
+    });
+    describe('when user is not authenticated', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request
+          .get(`/meetings/${meetingId}`)
+          .send();
+      });
+      test('responds with 401 status code', () => {
+        expect(response.status).toBe(401);
+      });
+      test('responds with text body type', () => {
+        expect(response.type).toEqual('text/plain');
+      });
+    });
+  });
+
+  describe('PATCH /meetings/:meetingId', () => {
+    const modifiedDummyMeeting = {
+      body: 'modified comment',
+    };
+
+    let meetingId;
+    beforeAll(async () => {
+      const meeting = await app.context.orm.Meeting.create({
+        sellerId: sellerUser.id,
+        buyerId: buyerUser.id,
+        propertyId,
+        ...dummyMeeting,
+      });
+      meetingId = meeting.id;
+    });
+
+    describe('when authorized buyer user modifies a meeting', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request
+          .patch(`/meetings/${meetingId}`)
+          .auth(authBuyer.token, { type: 'bearer' })
+          .set('Content-type', 'application/json')
+          .send(modifiedDummyMeeting);
+      });
+
+      test('responds with 204 status code', () => {
+        expect(response.status).toBe(204);
+      });
+
+      test('responds with an empty body type', () => {
+        expect(response.type).toEqual('');
+      });
+    });
+
+    describe('when authorized seller user modifies a meeting', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request
+          .patch(`/meetings/${meetingId}`)
+          .auth(authSeller.token, { type: 'bearer' })
+          .set('Content-type', 'application/json')
+          .send(modifiedDummyMeeting);
+      });
+
+      test('responds with 204 status code', () => {
+        expect(response.status).toBe(204);
+      });
+
+      test('responds with an empty body type', () => {
+        expect(response.type).toEqual('');
+      });
+    });
+
+    describe('when unauthorized user modifies a comment', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request
+          .patch(`/meetings/${meetingId}`)
+          .set('Content-type', 'application/json')
+          .send(modifiedDummyMeeting);
+      });
+
+      test('responds with 401 status code', () => {
+        expect(response.status).toBe(401);
+      });
+
+      test('responds with text body type', () => {
+        expect(response.type).toEqual('text/plain');
+      });
+    });
+  });
+
+  describe('DELETE /meetings/:meetingId', () => {
+    let meetingId;
+    beforeAll(async () => {
+      const meeting = await app.context.orm.Meeting.create({
+        sellerId: sellerUser.id,
+        buyerId: buyerUser.id,
+        propertyId,
+        ...dummyMeeting,
+      });
+      meetingId = meeting.id;
+    });
+
+    beforeEach(async () => {
+      const meeting = await app.context.orm.Meeting.create({
+        sellerId: sellerUser.id,
+        buyerId: buyerUser.id,
+        propertyId,
+        ...dummyMeeting,
+      });
+      meetingId = meeting.id;
+    });
+
+    describe('when authorized buyer user deletes a meeting', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request
+          .delete(`/meetings/${meetingId}`)
+          .auth(authBuyer.token, { type: 'bearer' })
+          .set('Content-type', 'application/json')
+          .send();
+      });
+
+      test('responds with 204 status code', () => {
+        expect(response.status).toBe(204);
+      });
+
+      test('responds with an empty body type', () => {
+        expect(response.type).toEqual('');
+      });
+    });
+
+    describe('when authorized seller user deletes a meeting', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request
+          .delete(`/meetings/${meetingId}`)
+          .auth(authSeller.token, { type: 'bearer' })
+          .set('Content-type', 'application/json')
+          .send();
+      });
+
+      test('responds with 204 status code', () => {
+        expect(response.status).toBe(204);
+      });
+
+      test('responds with an empty body type', () => {
+        expect(response.type).toEqual('');
+      });
+    });
+
+    describe('when unauthorized user deletes a comment', () => {
+      let response;
+      beforeAll(async () => {
+        response = await request
+          .delete(`/meetings/${meetingId}`)
+          .set('Content-type', 'application/json')
+          .send();
+      });
+
+      test('responds with 401 status code', () => {
+        expect(response.status).toBe(401);
+      });
+
+      test('responds with text body type', () => {
         expect(response.type).toEqual('text/plain');
       });
     });
