@@ -25,9 +25,7 @@ router.post(
   async (ctx) => {
     const reportedUserId = ctx.params.userId;
     const { reason } = ctx.request.body;
-    const reportedUser = await ctx.orm.User.findByPk(reportedUserId, {
-      attributes: { exclude: ['hashedPassword'] },
-    });
+    const reportedUser = await ctx.orm.User.findByPk(reportedUserId);
     if (reportedUser === null) {
       throw new ApiError(404, `Could not find user with id '${reportedUserId}'`);
     }
