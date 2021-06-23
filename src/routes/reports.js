@@ -42,7 +42,7 @@ router.post(
         id: userReport.id,
       };
     } catch (error) {
-      throw new ApiError(404, `Could not create report for user with id '${reportedUserId}'`);
+      throw new ApiError(400, `Could not create report for user with id '${reportedUserId}'`);
     }
   },
 );
@@ -70,7 +70,7 @@ router.post(
         id: commentReport.id,
       };
     } catch (error) {
-      throw new ApiError(404, `Could not create report for comment with id '${commentId}'`);
+      throw new ApiError(400, `Could not create report for comment with id '${commentId}'`);
     }
   },
 );
