@@ -69,10 +69,20 @@ router.post(
       throw new ApiError(422, 'Invalid password');
     }
     const user = await ctx.orm.User.findOne({ where: { email: email.trim() } });
-    if (!user || !(await bcrypt.compare(password, user.hashedPassword))) {
+    if (user) {
+      if (await bcrypt.compare(password, user.hashedPassword)) {
+        const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET);
+        ctx.body = { token };
+        ctx.status = 201;
+        return;
+      }
       throw new ApiError(401, 'Incorrect email or password');
     }
-    const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET);
+    const admin = await ctx.orm.Admin.findOne({ where: { email: email.trim() } });
+    if (!admin || !(await bcrypt.compare(password, admin.hashedPassword))) {
+      throw new ApiError(401, 'Incorrect email or password');
+    }
+    const token = jwt.sign({ sub: admin.id, admin: true }, process.env.JWT_SECRET);
     ctx.body = { token };
     ctx.status = 201;
   },

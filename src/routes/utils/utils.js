@@ -11,18 +11,6 @@ const validateIntParam = async (param, ctx, next) => {
   return next();
 };
 
-const requireLogin = async (ctx, next) => {
-  // TODO: user JWT
-  (() => {})(); // Line to avoid eslint warning, please remove
-  return next();
-};
-
-const excludeLogin = async (ctx, next) => {
-  // TODO: user JWT
-  (() => {})(); // Line to avoid eslint warning, please remove
-  return next();
-};
-
 const debug = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
 
 const authJWT = koaJwt({ secret: process.env.JWT_SECRET, key: 'jwtDecoded', debug });
@@ -55,8 +43,6 @@ const getUserIdFromToken = (ctx, next) => {
 
 module.exports = {
   validateIntParam,
-  requireLogin,
-  excludeLogin,
   authJWT,
   requiredParams,
   getUserIdFromToken,
