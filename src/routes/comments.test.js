@@ -97,7 +97,7 @@ describe('Comment routes', () => {
       await Promise.all(promises);
     });
 
-    describe('when user reqests comments', () => {
+    describe('when user requests comments', () => {
       let response;
 
       beforeAll(async () => {
