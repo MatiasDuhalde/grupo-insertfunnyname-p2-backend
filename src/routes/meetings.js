@@ -12,6 +12,7 @@ const { loadSingleProperty, loadSingleMeeting } = require('./utils/queries');
 const router = new KoaRouter();
 
 router.param('propertyId', validateIntParam);
+router.param('meetingId', validateIntParam);
 
 router.post(
   'property.meeting.create',
