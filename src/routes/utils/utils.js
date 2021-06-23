@@ -35,8 +35,12 @@ const requiredParams = (params) => (ctx, next) => {
 
 const getUserIdFromToken = (ctx, next) => {
   const {
-    jwtDecoded: { sub },
+    jwtDecoded: { sub, admin },
   } = ctx.state;
+  // Block admin from using user routes
+  if (admin) {
+    ctx.throw(401, 'Action unavailable for admin accounts');
+  }
   ctx.state.userId = `${sub}`;
   return next();
 };
