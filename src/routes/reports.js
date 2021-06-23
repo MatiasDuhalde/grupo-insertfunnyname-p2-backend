@@ -24,14 +24,15 @@ router.post(
   }),
   async (ctx) => {
     const reportedUserId = ctx.params.userId;
+    const reportingUserId = ctx.state.userId;
     const { reason } = ctx.request.body;
     const reportedUser = await ctx.orm.User.findByPk(reportedUserId);
     if (reportedUser === null) {
       throw new ApiError(404, `Could not find user with id '${reportedUserId}'`);
     }
     try {
-      const userReport = await reportedUser.createMadeUserReport({
-        userId: ctx.state.userId,
+      const userReport = await reportedUser.createReceivedUserReport({
+        userId: reportingUserId,
         reportedUserId,
         reason,
       });
