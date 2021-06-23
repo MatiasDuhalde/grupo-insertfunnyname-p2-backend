@@ -41,9 +41,21 @@ const getUserIdFromToken = (ctx, next) => {
   return next();
 };
 
+const getAdminIdFromToken = (ctx, next) => {
+  const {
+    jwtDecoded: { sub, admin },
+  } = ctx.state;
+  ctx.state.adminId = `${sub}`;
+  if (!admin) {
+    ctx.throw(401, 'Unauthorized');
+  }
+  return next();
+};
+
 module.exports = {
   validateIntParam,
   authJWT,
   requiredParams,
   getUserIdFromToken,
+  getAdminIdFromToken,
 };

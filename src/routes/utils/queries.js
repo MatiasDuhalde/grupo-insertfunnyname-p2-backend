@@ -21,8 +21,16 @@ const loadSingleMeeting = async (ctx, next) => {
   return next();
 };
 
+const loadSingleUser = async (ctx, next) => {
+  const { userId } = ctx.params;
+  ctx.state.user = await ctx.orm.User.findByPk(userId);
+  if (!ctx.state.user) throw new ApiError(404, `User '${userId}' not found`);
+  return next();
+};
+
 module.exports = {
   loadSingleProperty,
   loadSingleComment,
   loadSingleMeeting,
+  loadSingleUser,
 };
