@@ -324,9 +324,7 @@ describe('Meeting routes', () => {
     describe('when user is not authenticated', () => {
       let response;
       beforeAll(async () => {
-        response = await request
-          .get(`/meetings/${meetingId}`)
-          .send();
+        response = await request.get(`/meetings/${meetingId}`).send();
       });
       test('responds with 401 status code', () => {
         expect(response.status).toBe(401);

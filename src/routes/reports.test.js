@@ -37,10 +37,9 @@ describe('Comment routes', () => {
   };
   const dummyReport = {
     reason: 'random reason',
-  }
+  };
 
   let reportedUser;
-  let reporterUser;
   let comment;
   let property;
   let authReporterUser;
@@ -49,8 +48,8 @@ describe('Comment routes', () => {
     await app.context.orm.sequelize.sync({ force: true });
     // Create test user
     reportedUser = await app.context.orm.User.create(dummyReportedUser);
-    reporterUser = await app.context.orm.User.create(dummyReporterUser);
-    
+    await app.context.orm.User.create(dummyReporterUser);
+
     authReporterUser = (
       await request
         .post('/auth')
