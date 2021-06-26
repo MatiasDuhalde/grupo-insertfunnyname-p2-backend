@@ -11,18 +11,6 @@ const validateIntParam = async (param, ctx, next) => {
   return next();
 };
 
-const requireLogin = async (ctx, next) => {
-  // TODO: user JWT
-  (() => {})(); // Line to avoid eslint warning, please remove
-  return next();
-};
-
-const excludeLogin = async (ctx, next) => {
-  // TODO: user JWT
-  (() => {})(); // Line to avoid eslint warning, please remove
-  return next();
-};
-
 const debug = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
 
 const authJWT = koaJwt({ secret: process.env.JWT_SECRET, key: 'jwtDecoded', debug });
@@ -47,17 +35,31 @@ const requiredParams = (params) => (ctx, next) => {
 
 const getUserIdFromToken = (ctx, next) => {
   const {
-    jwtDecoded: { sub },
+    jwtDecoded: { sub, admin },
   } = ctx.state;
+  // Block admin from using user routes
+  if (admin) {
+    ctx.throw(401, 'Action unavailable for admin accounts');
+  }
   ctx.state.userId = `${sub}`;
+  return next();
+};
+
+const getAdminIdFromToken = (ctx, next) => {
+  const {
+    jwtDecoded: { sub, admin },
+  } = ctx.state;
+  ctx.state.adminId = `${sub}`;
+  if (!admin) {
+    ctx.throw(401, 'Unauthorized');
+  }
   return next();
 };
 
 module.exports = {
   validateIntParam,
-  requireLogin,
-  excludeLogin,
   authJWT,
   requiredParams,
   getUserIdFromToken,
+  getAdminIdFromToken,
 };

@@ -7,6 +7,30 @@ const loadSingleProperty = async (ctx, next) => {
   return next();
 };
 
+const loadSingleComment = async (ctx, next) => {
+  const { commentId } = ctx.params;
+  ctx.state.comment = await ctx.orm.Comment.findByPk(commentId);
+  if (!ctx.state.comment) throw new ApiError(404, `Comment '${commentId}' not found`);
+  return next();
+};
+
+const loadSingleMeeting = async (ctx, next) => {
+  const { meetingId } = ctx.params;
+  ctx.state.meeting = await ctx.orm.Meeting.findByPk(meetingId);
+  if (!ctx.state.meeting) throw new ApiError(404, `Meeting '${meetingId}' not found`);
+  return next();
+};
+
+const loadSingleUser = async (ctx, next) => {
+  const { userId } = ctx.params;
+  ctx.state.user = await ctx.orm.User.findByPk(userId);
+  if (!ctx.state.user) throw new ApiError(404, `User '${userId}' not found`);
+  return next();
+};
+
 module.exports = {
   loadSingleProperty,
+  loadSingleComment,
+  loadSingleMeeting,
+  loadSingleUser,
 };
