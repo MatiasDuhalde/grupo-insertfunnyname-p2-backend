@@ -29,9 +29,13 @@ module.exports = (sequelize, DataTypes) => {
       });
       this.hasMany(models.Comment, {
         foreignKey: 'propertyId',
+        onDelete: 'CASCADE',
+        hooks: true,
       });
       this.hasMany(models.Meeting, {
         foreignKey: 'propertyId',
+        onDelete: 'CASCADE',
+        hooks: true,
       });
     }
   }
