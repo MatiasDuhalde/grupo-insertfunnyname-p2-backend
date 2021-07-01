@@ -24,4 +24,4 @@ const uploadImage = async (imagePath) => {
   return imagesBucket.upload(imagePath);
 };
 
-module.export = { uploadImage };
+module.exports = { uploadImage };
