@@ -105,7 +105,22 @@ router.patch(
       Object.keys(ctx.request.body).forEach((key) => {
         ctx.state.property[key] = ctx.request.body[key];
       });
-      await ctx.state.property.save();
+      await ctx.state.property.save({
+        fields: [
+          'title',
+          'type',
+          'bathroom',
+          'bedrooms',
+          'bedrooms',
+          'size',
+          'region',
+          'commune',
+          'street',
+          'streetNumber',
+          'description',
+          'listingType',
+        ],
+      });
       ctx.status = 204;
     } catch (error) {
       const errors = {};

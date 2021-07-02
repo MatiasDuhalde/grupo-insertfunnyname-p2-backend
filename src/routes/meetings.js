@@ -124,7 +124,7 @@ router.patch(
       Object.keys(ctx.request.body).forEach((key) => {
         ctx.state.meeting[key] = ctx.request.body[key];
       });
-      await ctx.state.meeting.save();
+      await ctx.state.meeting.save({ fields: ['type', 'date'] });
       ctx.status = 204;
     } catch (error) {
       const errors = {};

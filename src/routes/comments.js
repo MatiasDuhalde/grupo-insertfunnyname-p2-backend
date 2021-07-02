@@ -98,7 +98,7 @@ router.patch(
     try {
       if (ctx.state.comment.propertyId !== propertyId) throw new Error();
       ctx.state.comment.body = body;
-      await ctx.state.comment.save();
+      await ctx.state.comment.save({ fields: ['body'] });
       ctx.status = 204;
     } catch (error) {
       throw new ApiError(404, `Could not edit comment '${commentId}'`);
