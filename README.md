@@ -50,6 +50,9 @@ DB_PASSWORD=my_db_password
 
 NODE_ENV=development
 
+# CLIENT
+CLIENT_URL='localhost:3000'
+
 # SENDGRID
 SENDGRID_USER=apikey
 SENDGRID_PASS=my_sendgrid_apikey
