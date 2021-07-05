@@ -6,15 +6,8 @@ const { Storage } = require('@google-cloud/storage');
 const ApiError = require('./apiError');
 
 // Load environment variables
-const { GOOGLE_STORAGE_CREDS_PATH, GOOGLE_PROJECT_ID, GOOGLE_STORAGE_BUCKET_ID } = process.env;
-
-if (!GOOGLE_PROJECT_ID || !GOOGLE_STORAGE_CREDS_PATH) {
-  throw Error('Missing Google Cloud Storage environment variables');
-}
-
-if (!GOOGLE_STORAGE_BUCKET_ID) {
-  throw Error('Missing Google Cloud Storage Bucket ID environment variable');
-}
+const GOOGLE_STORAGE_BUCKET_ID = process.env.GOOGLE_STORAGE_BUCKET_ID || 'findhomy-app-images_test';
+const { GOOGLE_STORAGE_CREDS_PATH, GOOGLE_PROJECT_ID } = process.env;
 
 const PROFILE_PICTURE_SIZE_LIMIT = 200000; // 200kB
 
