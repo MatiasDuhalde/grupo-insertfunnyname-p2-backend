@@ -10,7 +10,7 @@ const clientUrls = {
 };
 
 Object.keys(clientUrls).forEach((url) => {
-  clientUrls[url] = `${CLIENT_URL}/${clientUrls[url]}`;
+  clientUrls[url] = `${CLIENT_URL}${clientUrls[url]}`;
 });
 
 module.exports = {
