@@ -6,6 +6,7 @@ const koaFlashMessage = require('koa-flash-message').default;
 const koaStatic = require('koa-static');
 const render = require('koa-ejs');
 const session = require('koa-session');
+const cors = require('@koa/cors');
 const override = require('koa-override-method');
 const mailer = require('./mailers');
 const routes = require('./routes');
@@ -30,6 +31,15 @@ app.context.orm = orm;
 /**
  * Middlewares
  */
+
+const { CLIENT_URL } = process.env;
+const OTHER_ORIGINS = process.env.OTHER_ORIGINS ? process.env.OTHER_ORIGINS.split(' ; ') : [];
+
+app.use(
+  cors({
+    origin: (ctx) => (OTHER_ORIGINS.includes(ctx.get('Origin')) ? ctx.get('Origin') : CLIENT_URL),
+  }),
+);
 
 // expose running mode in ctx.state
 app.use((ctx, next) => {
