@@ -1,6 +1,7 @@
 const KoaRouter = require('koa-router');
 
 const ApiError = require('./utils/apiError');
+const { uploadProfileImage, deleteProfileImage } = require('./utils/storage');
 const { validateIntParam, authJWT, getUserIdFromToken } = require('./utils/utils');
 
 const router = new KoaRouter();
@@ -21,14 +22,27 @@ router.patch('user.edit', '/users/:userId', authJWT, getUserIdFromToken, async (
   }
   try {
     const user = await ctx.orm.User.findByPk(ctx.state.userId);
+    // Password
     if (ctx.request.body.password !== undefined) {
       ctx.request.body.hashedPassword = ctx.request.body.password;
       delete ctx.request.body.password;
     }
+    // Map objects
+    delete ctx.request.body.avatarLink;
     Object.keys(ctx.request.body).forEach((key) => {
       user[key] = ctx.request.body[key];
     });
-    await user.save();
+    await user.validate();
+
+    // Image
+    if (ctx.request.files && ctx.request.files.avatarFile) {
+      const { avatarFile } = ctx.request.files;
+      const newImageUrl = await uploadProfileImage(user, avatarFile);
+      await deleteProfileImage(user);
+      user.avatarLink = newImageUrl;
+    }
+
+    await user.save({ fields: ['email', 'firstName', 'lastName', 'avatarLink', 'hashedPassword'] });
     ctx.status = 204;
   } catch (error) {
     const errors = {};

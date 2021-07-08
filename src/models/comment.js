@@ -17,6 +17,8 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.ReportComment, {
         as: 'receivedCommentReports',
         foreignKey: 'commentId',
+        onDelete: 'CASCADE',
+        hooks: true,
       });
     }
   }

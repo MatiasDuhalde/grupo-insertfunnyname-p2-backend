@@ -14,29 +14,43 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasMany(models.Comment, {
         foreignKey: 'userId',
+        onDelete: 'CASCADE',
+        hooks: true,
       });
       this.hasMany(models.Property, {
         foreignKey: 'userId',
+        onDelete: 'CASCADE',
+        hooks: true,
       });
       this.hasMany(models.ReportUser, {
         as: 'madeUserReports',
         foreignKey: 'userId',
+        onDelete: 'CASCADE',
+        hooks: true,
       });
       this.hasMany(models.ReportUser, {
         as: 'receivedUserReports',
         foreignKey: 'reportedUserId',
+        onDelete: 'CASCADE',
+        hooks: true,
       });
       this.hasMany(models.ReportComment, {
         as: 'madeCommentReports',
         foreignKey: 'userId',
+        onDelete: 'CASCADE',
+        hooks: true,
       });
       this.hasMany(models.Meeting, {
         as: 'buyerMeetings',
         foreignKey: 'buyerId',
+        onDelete: 'CASCADE',
+        hooks: true,
       });
       this.hasMany(models.Meeting, {
         as: 'sellerMeetings',
         foreignKey: 'sellerId',
+        onDelete: 'CASCADE',
+        hooks: true,
       });
     }
 
