@@ -1,3 +1,6 @@
+// Load environment variables
+require('dotenv').config();
+
 module.exports = {
   provider: {
     // your provider name directly or from ENV var
@@ -10,6 +13,6 @@ module.exports = {
   },
   // defaults to be passed to nodemailer's emails
   defaults: {
-    from: 'template <template@example.org>',
+    from: process.env.SENDGRID_EMAIL,
   },
 };

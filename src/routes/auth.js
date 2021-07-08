@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const ApiError = require('./utils/apiError');
 const { validateIntParam, requiredParams } = require('./utils/utils');
+const { sendWelcomeEmail } = require('../mailers/signup');
 
 const router = new KoaRouter();
 
@@ -42,6 +43,7 @@ router.post(
       ctx.body = {
         email: user.email,
       };
+      sendWelcomeEmail(ctx, user.email, { user });
     } catch (error) {
       const errors = {};
       if (error instanceof ctx.orm.Sequelize.ValidationError) {
