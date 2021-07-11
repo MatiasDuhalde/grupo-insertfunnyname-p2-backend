@@ -31,6 +31,8 @@ describe('Meeting routes', () => {
     description: 'Generic description',
     price: 1,
     listingType: 'sale',
+    imageLink:
+      'https://ia800707.us.archive.org/25/items/MinecraftSmallDirtHouse/Minecraft_Small_Dirt_House.png',
   };
   const dummyMeeting = {
     type: 'remote',
