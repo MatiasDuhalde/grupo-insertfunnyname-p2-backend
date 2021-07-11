@@ -10,6 +10,7 @@ const GOOGLE_STORAGE_BUCKET_ID = process.env.GOOGLE_STORAGE_BUCKET_ID || 'findho
 const { GOOGLE_STORAGE_CREDS_PATH, GOOGLE_PROJECT_ID } = process.env;
 
 const PROFILE_PICTURE_SIZE_LIMIT = 200000; // 200kB
+const PROPERTY_IMAGE_SIZE_LIMIT = 2000000; // 2MB
 
 const SUPPORTED_FORMATS = ['image/png', 'image/jpeg', 'image/bmp'];
 
@@ -40,7 +41,7 @@ const uploadProfileImage = async (user, imageFile) => {
   if (imageFile.size > PROFILE_PICTURE_SIZE_LIMIT) {
     throw new ApiError(
       400,
-      `Profile picture cannot size cannot be larger than ${PROFILE_PICTURE_SIZE_LIMIT / 1000} kB`,
+      `Profile picture size cannot be larger than ${PROFILE_PICTURE_SIZE_LIMIT / 1000} kB`,
     );
   }
   const fileType = await validateImageFormat(imageFile);
@@ -65,4 +66,33 @@ const deleteProfileImage = async (user) => {
   }
 };
 
-module.exports = { uploadProfileImage, deleteProfileImage };
+const uploadPropertyImage = async (property, imageFile) => {
+  if (imageFile.size > PROPERTY_IMAGE_SIZE_LIMIT) {
+    throw new ApiError(
+      400,
+      `Property image cannot size cannot be larger than ${PROPERTY_IMAGE_SIZE_LIMIT / 1000000} MB`,
+    );
+  }
+  const fileType = await validateImageFormat(imageFile);
+  const username = property.email.split('@')[0];
+  const hash1 = Math.abs(CRC32.str(imageFile.name));
+  const hash2 = Math.abs(CRC32.str(`${username}${new Date()}`));
+  const bucketPath = `property/${hash1}-${hash2}.${fileType.ext}`;
+  const res = await uploadImage(imageFile, bucketPath);
+  const newFile = res[0];
+  return newFile.publicUrl();
+};
+
+const deletePropertyImage = async (property) => {
+  const url = property.imageLink;
+  if (url.includes(GOOGLE_STORAGE_BUCKET_ID)) {
+    await deleteImage(url);
+  }
+};
+
+module.exports = {
+  uploadProfileImage,
+  deleteProfileImage,
+  uploadPropertyImage,
+  deletePropertyImage,
+};

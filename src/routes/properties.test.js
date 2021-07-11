@@ -19,6 +19,8 @@ describe('Property routes', () => {
     street: 'Vicuña Mackenna 4860',
     price: 1,
     listingType: 'rent',
+    imageLink:
+      'https://ia800707.us.archive.org/25/items/MinecraftSmallDirtHouse/Minecraft_Small_Dirt_House.png',
   };
 
   let auth;

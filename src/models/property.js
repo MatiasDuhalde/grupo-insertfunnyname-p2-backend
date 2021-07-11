@@ -209,6 +209,14 @@ module.exports = (sequelize, DataTypes) => {
           },
         },
       },
+      imageLink: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          isUrl: true,
+          notEmpty: false,
+        },
+      },
     },
     {
       sequelize,
