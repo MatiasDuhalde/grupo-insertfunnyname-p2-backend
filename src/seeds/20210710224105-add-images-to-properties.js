@@ -1,7 +1,3 @@
-const bcrypt = require('bcrypt');
-
-const PASSWORD_SALT_ROUNDS = 8;
-
 module.exports = {
   up: async (queryInterface) => {
     /**
