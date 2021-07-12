@@ -32,11 +32,11 @@ Para probar los endpoints de la versión de producción de FindHomy, se debe ant
 https://findhomy-api.herokuapp.com/properties
 ```
 
-## Local
+## Local (Guía de instalación)
 
 http://localhost:3000
 
-Para probar la versión local, se deben instalar los _node modules_ usando `yarn install`, y ejecutar el servidor usando `yarn dev` o `yarn start`. También, se deben entregarle al programa variables de entorno. Esto se puede hacer con un archivo `.env` colocado en la base de este repositorio, con la siguiente estructura:
+Para probar la versión local, se deben instalar los _node modules_ usando `yarn install`. Además, se deben ejecutar las migraciones, y opcionalmente las seeds a la base de datos, usando los comandos `yarn sequelize db:migrate` y `yarn sequelize db:seed:all` respectivamente. Para el servidor se puede usar `yarn dev` o `yarn start`. También, se deben entregarle al programa variables de entorno. Esto se puede hacer con un archivo `.env` colocado en la base de este repositorio, con la siguiente estructura:
 
 ```env
 DB_DIALECT=postgres
@@ -78,3 +78,9 @@ GOOGLE_STORAGE_CREDS={
 }
 GOOGLE_STORAGE_BUCKET_ID=my_storage_bucket_id
 ```
+
+Las variables de entorno requieren de los siguientes servicios:
+- El servicio de PostgreSQL corriendo en DB_HOST, con una base de datos ya creada con nombre `DB_NAME`, y un usuario de PostgreSQL con credenciales `DB_USERNAME` y `DB_PASSWORD`
+- Opcionalmente, se puede estar ejecutando el frontend, para dirigir las requests desde ahí. Para esto se debe incluir la URL en la cual se ejecuta el frontend (generalmente localhost:3000), para temas de CORS.
+- Se debe tener una cuenta de SENDGRID para el mailer, y se deben colocar las credenciales (apikey) en `SENDGRID_PASS`.
+- Para el almacenamiento de imágenes, se debe tener un bucket creado en GCS (Google Cloud Storage). Se debe incluir la id del proyecto del bucket (`GOOGLE_PROJECT_ID`), y se debe crear una cuenta de servicio que tenga acceso de administrador a este bucket. Se deben colocar las credenciales de esta cuenta de servicio en `GOOGLE_STORAGE_CREDS` (es un JSON). Finalmente, se debe especificar la ID del bucket creado para el almacenamiento en `GOOGLE_STORAGE_BUCKET_ID`
