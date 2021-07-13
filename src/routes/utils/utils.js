@@ -24,7 +24,7 @@ const requiredParams = (params) => (ctx, next) => {
     }
     if (params[param] === 'number') {
       let value = ctx.request.body[param];
-      value = parseInt(value, 10);
+      value = parseFloat(value, 10);
       if (Number.isNaN(value)) {
         errors[param] = `${ctx.request.body[param]} is not a valid value`;
         return;
