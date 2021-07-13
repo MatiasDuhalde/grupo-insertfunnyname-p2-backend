@@ -24,9 +24,7 @@ const requiredParams = (params) => (ctx, next) => {
     }
     const paramType = typeof ctx.request.body[param];
     if (paramType !== params[param]) {
-      if (params[param] === 'number' && Number.isNaN(ctx.request.body[params])) {
-        errors[param] = `${param} must have type ${params[param]} (received ${paramType})`;
-      }
+      errors[param] = `${param} must have type ${params[param]} (received ${paramType})`;
     }
   });
   if (Object.keys(errors).length !== 0) {
