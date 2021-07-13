@@ -74,9 +74,8 @@ const uploadPropertyImage = async (property, imageFile) => {
     );
   }
   const fileType = await validateImageFormat(imageFile);
-  const username = property.email.split('@')[0];
   const hash1 = Math.abs(CRC32.str(imageFile.name));
-  const hash2 = Math.abs(CRC32.str(`${username}${new Date()}`));
+  const hash2 = Math.abs(CRC32.str(`${new Date()}`));
   const bucketPath = `property/${hash1}-${hash2}.${fileType.ext}`;
   const res = await uploadImage(imageFile, bucketPath);
   const newFile = res[0];

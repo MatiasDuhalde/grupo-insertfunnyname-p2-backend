@@ -22,6 +22,15 @@ const requiredParams = (params) => (ctx, next) => {
       errors[param] = `${param} is required`;
       return;
     }
+    if (params[param] === 'number') {
+      let value = ctx.request.body[param];
+      value = parseFloat(value, 10);
+      if (Number.isNaN(value)) {
+        errors[param] = `${ctx.request.body[param]} is not a valid value`;
+        return;
+      }
+      ctx.request.body[param] = value;
+    }
     const paramType = typeof ctx.request.body[param];
     if (paramType !== params[param]) {
       errors[param] = `${param} must have type ${params[param]} (received ${paramType})`;
