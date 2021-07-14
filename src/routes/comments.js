@@ -21,7 +21,14 @@ router.get(
   async (ctx) => {
     const { propertyId } = ctx.params;
     try {
-      const comments = await ctx.state.property.getComments();
+      const comments = await ctx.state.property.getComments({
+        include: [
+          {
+            model: ctx.orm.User,
+            attributes: ['id', 'firstName', 'lastName', 'avatarLink'],
+          },
+        ],
+      });
       ctx.body = {
         comments,
       };
