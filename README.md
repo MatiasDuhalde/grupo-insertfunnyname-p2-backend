@@ -34,9 +34,13 @@ https://findhomy-api.herokuapp.com/properties
 
 ## Local (Guía de instalación)
 
-http://localhost:3000
+Se debe clonar este repositorio al sistema de archivos local, usando
 
-Para probar la versión local, se deben instalar los _node modules_ usando `yarn install`. Además, se deben ejecutar las migraciones, y opcionalmente las seeds a la base de datos, usando los comandos `yarn sequelize db:migrate` y `yarn sequelize db:seed:all` respectivamente. Para el servidor se puede usar `yarn dev` o `yarn start`. También, se deben entregarle al programa variables de entorno. Esto se puede hacer con un archivo `.env` colocado en la base de este repositorio, con la siguiente estructura:
+```bash
+git clone git@github.com:IIC2513-2021-1/grupo-insertfunnyname-p2-backend.git
+```
+
+Además, se deben tener cargadas las variables de entorno listadas a continuación, lo cual puede hacerse a través de un archivo `.env` en la base del repositorio con el siguiente contenido:
 
 ```env
 DB_DIALECT=postgres
@@ -67,7 +71,7 @@ GOOGLE_STORAGE_CREDS_PATH=google-storage-creds.json
 GOOGLE_STORAGE_CREDS={
   "type": "service_account",
   "project_id": "my_google_project_id",
-  "private_key_id": "8148b0fb35e32319fddbc59da25d7e0f1f5be35e",
+  "private_key_id": "<my_private_key_id>",
   "private_key": "-----BEGIN PRIVATE KEY-----\n <my_service_account_private_key> \n-----END PRIVATE KEY-----\n",
   "client_email": "my_client_email_user@my_google_project_id.iam.gserviceaccount.com",
   "client_id": "my_client_id",
@@ -79,8 +83,27 @@ GOOGLE_STORAGE_CREDS={
 GOOGLE_STORAGE_BUCKET_ID=my_storage_bucket_id
 ```
 
+Detalles sobre las variables de entorno:
+
 Las variables de entorno requieren de los siguientes servicios:
 - El servicio de PostgreSQL corriendo en DB_HOST, con una base de datos ya creada con nombre `DB_NAME`, y un usuario de PostgreSQL con credenciales `DB_USERNAME` y `DB_PASSWORD`
-- Opcionalmente, se puede estar ejecutando el frontend, para dirigir las requests desde ahí. Para esto se debe incluir la URL en la cual se ejecuta el frontend (generalmente localhost:3000), para temas de CORS.
 - Se debe tener una cuenta de SENDGRID para el mailer, y se deben colocar las credenciales (apikey) en `SENDGRID_PASS`.
 - Para el almacenamiento de imágenes, se debe tener un bucket creado en GCS (Google Cloud Storage). Se debe incluir la id del proyecto del bucket (`GOOGLE_PROJECT_ID`), y se debe crear una cuenta de servicio que tenga acceso de administrador a este bucket. Se deben colocar las credenciales de esta cuenta de servicio en `GOOGLE_STORAGE_CREDS` (es un JSON). Finalmente, se debe especificar la ID del bucket creado para el almacenamiento en `GOOGLE_STORAGE_BUCKET_ID`
+- Opcionalmente, se puede estar ejecutando el frontend, para dirigir las requests desde ahí. Para esto, se debe incluir la URL en la variable `CLIENT_URL`, en la cual se ejecuta el frontend (generalmente localhost:3000), para temas de CORS.
+
+Para el siguiente paso, se debe tener instalado `node` y `yarn`.
+
+Para probar la versión local, se deben instalar los _node modules_ usando `yarn install`. Además, se deben ejecutar las migraciones, y opcionalmente las seeds a la base de datos, usando los comandos `yarn sequelize db:migrate` y `yarn sequelize db:seed:all` respectivamente. Los comandos se resumen a continuación.
+
+```bash
+# Instalar dependencias
+yarn install
+# Migrar esquema a base de datos
+# (servicio de base de datos debe estar corriendo con la address especificada en .env)
+yarn sequelize db:migrate
+# Ejecutar seeds (opcional, recomendado)
+yarn sequelize db:seed:all
+```
+
+Para el servidor se puede usar `yarn dev` o `yarn start`. Por defecto, el programa quedará escuchando requests en http://localhost:3000
+

@@ -11,8 +11,18 @@ router.param('propertyId', validateIntParam);
 router.param('commentId', validateIntParam);
 
 router.get('admin.report.list', '/admin/reports', authJWT, getAdminIdFromToken, async (ctx) => {
-  const commentReports = await ctx.orm.ReportComment.findAll();
-  const userReports = await ctx.orm.ReportUser.findAll();
+  const commentReports = await ctx.orm.ReportComment.findAll({
+    include: [{ model: ctx.orm.Comment, attributes: ['body', 'createdAt'] }],
+  });
+  const userReports = await ctx.orm.ReportUser.findAll({
+    include: [
+      {
+        model: ctx.orm.User,
+        as: 'reportedUser',
+        attributes: ['id', 'firstName', 'lastName', 'avatarLink', 'email'],
+      },
+    ],
+  });
 
   ctx.body = {
     commentReports,

@@ -16,7 +16,20 @@ const loadSingleComment = async (ctx, next) => {
 
 const loadSingleMeeting = async (ctx, next) => {
   const { meetingId } = ctx.params;
-  ctx.state.meeting = await ctx.orm.Meeting.findByPk(meetingId);
+  ctx.state.meeting = await ctx.orm.Meeting.findByPk(meetingId, {
+    include: [
+      {
+        model: ctx.orm.User,
+        as: 'buyerUser',
+        attributes: ['id', 'firstName', 'lastName', 'avatarLink', 'email'],
+      },
+      {
+        model: ctx.orm.User,
+        as: 'sellerUser',
+        attributes: ['id', 'firstName', 'lastName', 'avatarLink', 'email'],
+      },
+    ],
+  });
   if (!ctx.state.meeting) throw new ApiError(404, `Meeting '${meetingId}' not found`);
   return next();
 };
