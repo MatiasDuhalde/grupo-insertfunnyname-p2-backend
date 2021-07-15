@@ -107,3 +107,5 @@ yarn sequelize db:seed:all
 
 Para el servidor se puede usar `yarn dev` o `yarn start`. Por defecto, el programa quedará escuchando requests en http://localhost:3000
 
+## Diagrama ER
+<img src="ER Diagram.svg" />
