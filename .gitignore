@@ -15,4 +15,4 @@ logs
 *.log
 
 # Google
-google-storage-creds.json
+google-credentials.json
