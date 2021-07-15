@@ -67,8 +67,8 @@ JWT_SECRET=my_jwt_secret
 
 # GOOGLE
 GOOGLE_PROJECT_ID=my_google_project_id
-GOOGLE_STORAGE_CREDS_PATH=google-storage-creds.json
-GOOGLE_STORAGE_CREDS={
+GOOGLE_STORAGE_CREDS_PATH=google-credentials.json
+GOOGLE_CREDENTIALS={
   "type": "service_account",
   "project_id": "my_google_project_id",
   "private_key_id": "<my_private_key_id>",
@@ -88,7 +88,7 @@ Detalles sobre las variables de entorno:
 Las variables de entorno requieren de los siguientes servicios:
 - El servicio de PostgreSQL corriendo en DB_HOST, con una base de datos ya creada con nombre `DB_NAME`, y un usuario de PostgreSQL con credenciales `DB_USERNAME` y `DB_PASSWORD`
 - Se debe tener una cuenta de SENDGRID para el mailer, y se deben colocar las credenciales (apikey) en `SENDGRID_PASS`.
-- Para el almacenamiento de imágenes, se debe tener un bucket creado en GCS (Google Cloud Storage). Se debe incluir la id del proyecto del bucket (`GOOGLE_PROJECT_ID`), y se debe crear una cuenta de servicio que tenga acceso de administrador a este bucket. Se deben colocar las credenciales de esta cuenta de servicio en `GOOGLE_STORAGE_CREDS` (es un JSON). Finalmente, se debe especificar la ID del bucket creado para el almacenamiento en `GOOGLE_STORAGE_BUCKET_ID`
+- Para el almacenamiento de imágenes, se debe tener un bucket creado en GCS (Google Cloud Storage). Se debe incluir la id del proyecto del bucket (`GOOGLE_PROJECT_ID`), y se debe crear una cuenta de servicio que tenga acceso de administrador a este bucket. Se deben colocar las credenciales de esta cuenta de servicio en `GOOGLE_CREDENTIALS` (es un JSON). Finalmente, se debe especificar la ID del bucket creado para el almacenamiento en `GOOGLE_STORAGE_BUCKET_ID`
 - Opcionalmente, se puede estar ejecutando el frontend, para dirigir las requests desde ahí. Para esto, se debe incluir la URL en la variable `CLIENT_URL`, en la cual se ejecuta el frontend (generalmente localhost:3000), para temas de CORS.
 
 Para el siguiente paso, se debe tener instalado `node` y `yarn`.
